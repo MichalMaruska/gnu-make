@@ -1,0 +1,15 @@
+/autom4te.cache
+/ABOUT-NLS
+/aclocal.m4
+/config.h
+/config.h.in
+/config.log
+/config.status
+/configure
+/stamp-h1
+/config
+/po
+CVS
+Makefile
+Makefile.in
+*.Po
