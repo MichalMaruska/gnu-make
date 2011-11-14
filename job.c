@@ -108,6 +108,7 @@ static void vmsWaitForChildren (int *);
 # include "sub_proc.h"
 # include "w32err.h"
 # include "pathstuff.h"
+# define WAIT_NOHANG 1
 #endif /* WINDOWS32 */
 
 #ifdef __EMX__
@@ -528,9 +529,9 @@ reap_children (int block, int err)
 {
 #ifndef WINDOWS32
   WAIT_T status;
+#endif
   /* Initially, assume we have some.  */
   int reap_more = 1;
-#endif
 
 #ifdef WAIT_NOHANG
 # define REAP_MORE reap_more
@@ -699,6 +700,7 @@ reap_children (int block, int err)
             HANDLE hPID;
             int werr;
             HANDLE hcTID, hcPID;
+            DWORD dwWaitStatus = 0;
             exit_code = 0;
             exit_sig = 0;
             coredump = 0;
@@ -722,7 +724,7 @@ reap_children (int block, int err)
               }
 
             /* wait for anything to finish */
-            hPID = process_wait_for_any();
+            hPID = process_wait_for_any(block, &dwWaitStatus);
             if (hPID)
               {
 
@@ -744,6 +746,18 @@ reap_children (int block, int err)
 
                 coredump = 0;
               }
+            else if (dwWaitStatus == WAIT_FAILED)
+              {
+                /* The WaitForMultipleObjects() failed miserably.  Punt.  */
+                pfatal_with_name ("WaitForMultipleObjects");
+              }
+            else if (dwWaitStatus == WAIT_TIMEOUT)
+              {
+                /* No child processes are finished.  Give up waiting. */
+                reap_more = 0;
+                break;
+              }
+
             pid = (pid_t) hPID;
           }
 #endif /* WINDOWS32 */
@@ -926,6 +940,19 @@ free_child (struct child *child)
   /* If we're using the jobserver and this child is not the only outstanding
      job, put a token back into the pipe for it.  */
 
+#ifdef WINDOWS32
+  if (has_jobserver_semaphore() && jobserver_tokens > 1)
+    {
+      if (! release_jobserver_semaphore())
+        {
+          DWORD err = GetLastError();
+          fatal (NILF,_("release jobserver semaphore: (Error %d: %s)"),
+                 err, map_windows32_error_to_string(err));
+        }
+
+      DB (DB_JOBS, (_("Released token for child %p (%s).\n"), child, child->file->name));
+    }
+#else
   if (job_fds[1] >= 0 && jobserver_tokens > 1)
     {
       char token = '+';
@@ -940,6 +967,7 @@ free_child (struct child *child)
       DB (DB_JOBS, (_("Released token for child %p (%s).\n"),
                     child, child->file->name));
     }
+#endif
 
   --jobserver_tokens;
 
@@ -991,7 +1019,7 @@ unblock_sigs (void)
 }
 #endif
 
-#ifdef MAKE_JOBSERVER
+#if defined(MAKE_JOBSERVER) && !defined(WINDOWS32)
 RETSIGTYPE
 job_noop (int sig UNUSED)
 {
@@ -1740,7 +1768,11 @@ new_job (struct file *file)
      just once).  Also more thought needs to go into the entire algorithm;
      this is where the old parallel job code waits, so...  */
 
+#ifdef WINDOWS32
+  else if (has_jobserver_semaphore())
+#else
   else if (job_fds[0] >= 0)
+#endif
     while (1)
       {
         char token;
@@ -1754,6 +1786,7 @@ new_job (struct file *file)
         if (!jobserver_tokens)
           break;
 
+#ifndef WINDOWS32
         /* Read a token.  As long as there's no token available we'll block.
            We enable interruptible system calls before the read(2) so that if
            we get a SIGCHLD while we're waiting, we'll return with EINTR and
@@ -1782,6 +1815,7 @@ new_job (struct file *file)
             DB (DB_JOBS, ("Duplicate the job FD\n"));
             job_rfd = dup (job_fds[0]);
           }
+#endif
 
         /* Reap anything that's currently waiting.  */
         reap_children (0, 0);
@@ -1800,11 +1834,24 @@ new_job (struct file *file)
         if (!children)
           fatal (NILF, "INTERNAL: no children as we go to sleep on read\n");
 
+#ifdef WINDOWS32
+        /* On Windows we simply wait for the jobserver semaphore to become
+         * signalled or one of our child processes to terminate.
+         */
+        got_token = wait_for_semaphore_or_child_process();
+        if (got_token < 0)
+          {
+            DWORD err = GetLastError();
+            fatal (NILF,_("semaphore or child process wait: (Error %d: %s)"),
+                   err, map_windows32_error_to_string(err));
+          }
+#else
         /* Set interruptible system calls, and read() for a job token.  */
 	set_child_handler_action_flags (1, waiting_jobs != NULL);
 	got_token = read (job_rfd, &token, 1);
 	saved_errno = errno;
 	set_child_handler_action_flags (0, waiting_jobs != NULL);
+#endif
 
         /* If we got one, we're done here.  */
 	if (got_token == 1)
@@ -1814,6 +1861,7 @@ new_job (struct file *file)
             break;
           }
 
+#ifndef WINDOWS32
         /* If the error _wasn't_ expected (EINTR or EBADF), punt.  Otherwise,
            go back and reap_children(), and try again.  */
 	errno = saved_errno;
@@ -1821,6 +1869,7 @@ new_job (struct file *file)
           pfatal_with_name (_("read jobs pipe"));
         if (errno == EBADF)
           DB (DB_JOBS, ("Read returned EBADF.\n"));
+#endif
       }
 #endif
 
@@ -2150,7 +2199,7 @@ exec_command (char **argv, char **envp)
     }
 
   /* wait and reap last child */
-  hWaitPID = process_wait_for_any();
+  hWaitPID = process_wait_for_any(1, 0);
   while (hWaitPID)
     {
       /* was an error found on this process? */
@@ -2336,7 +2385,7 @@ void clean_tmp (void)
 static char **
 construct_command_argv_internal (char *line, char **restp, char *shell,
                                  char *shellflags, char *ifs, int flags,
-                                 char **batch_filename_p)
+                                 char **batch_filename UNUSED)
 {
 #ifdef __MSDOS__
   /* MSDOS supports both the stock DOS shell and ports of Unixy shells.
@@ -2999,7 +3048,7 @@ construct_command_argv_internal (char *line, char **restp, char *shell,
       new_argv = xmalloc(2 * sizeof (char *));
       new_argv[0] = xstrdup ("");
       new_argv[1] = NULL;
-    } else if ((no_default_sh_exe || batch_mode_shell) && batch_filename_ptr) {
+    } else if ((no_default_sh_exe || batch_mode_shell) && batch_filename) {
       int temp_fd;
       FILE* batch = NULL;
       int id = GetCurrentProcessId();
@@ -3007,10 +3056,10 @@ construct_command_argv_internal (char *line, char **restp, char *shell,
 
       /* create a file name */
       sprintf(fbuf, "make%d", id);
-      *batch_filename_ptr = create_batch_file (fbuf, unixy_shell, &temp_fd);
+      *batch_filename = create_batch_file (fbuf, unixy_shell, &temp_fd);
 
       DB (DB_JOBS, (_("Creating temporary batch file %s\n"),
-                    *batch_filename_ptr));
+                    *batch_filename));
 
       /* Create a FILE object for the batch file, and write to it the
 	 commands to be executed.  Put the batch file in TEXT mode.  */
@@ -3028,9 +3077,9 @@ construct_command_argv_internal (char *line, char **restp, char *shell,
       new_argv = xmalloc(3 * sizeof (char *));
       if (unixy_shell) {
         new_argv[0] = xstrdup (shell);
-        new_argv[1] = *batch_filename_ptr; /* only argv[0] gets freed later */
+        new_argv[1] = *batch_filename; /* only argv[0] gets freed later */
       } else {
-        new_argv[0] = xstrdup (*batch_filename_ptr);
+        new_argv[0] = xstrdup (*batch_filename);
         new_argv[1] = NULL;
       }
       new_argv[2] = NULL;
@@ -3149,7 +3198,7 @@ construct_command_argv_internal (char *line, char **restp, char *shell,
 
 char **
 construct_command_argv (char *line, char **restp, struct file *file,
-                        int cmd_flags, char **batch_filename_p)
+                        int cmd_flags, char **batch_filename)
 {
   char *shell, *ifs, *shellflags;
   char **argv;
@@ -3263,7 +3312,7 @@ construct_command_argv (char *line, char **restp, struct file *file,
   }
 
   argv = construct_command_argv_internal (line, restp, shell, shellflags, ifs,
-                                          cmd_flags, batch_filename_p);
+                                          cmd_flags, batch_filename);
 
   free (shell);
   free (shellflags);
