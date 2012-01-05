@@ -267,8 +267,7 @@ void voutputf(message_t type, const struct floc *flocp, int flags, const char * 
     fputc ('\n', target);
 
   /* Flush */
-  if (flags & OF_FLUSH)
-    fflush(target);
+  fflush(target);
 }
 
 

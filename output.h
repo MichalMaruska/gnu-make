@@ -36,8 +36,7 @@ typedef enum _message_t {
 
 enum {
 	OF_APPEND_NEWLINE  = 0x1,
-	OF_PREPEND_PREFIX  = 0x2,
-	OF_FLUSH           = 0x4
+	OF_PREPEND_PREFIX  = 0x2
 };
 
 

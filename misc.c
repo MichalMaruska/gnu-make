@@ -235,7 +235,7 @@ message (prefix, fmt, va_alist)
   log_working_directory (1);
   if (fmt != 0)
     {
-      const int flags = (prefix ? OF_PREPEND_PREFIX : 0) | OF_APPEND_NEWLINE|OF_FLUSH;
+      const int flags = (prefix ? OF_PREPEND_PREFIX : 0) | OF_APPEND_NEWLINE;
       VA_START (args, fmt);
       voutputf (OT_MISC_MESSAGE, 0, flags, fmt, args);
       VA_END (args);
@@ -261,7 +261,7 @@ error (flocp, fmt, va_alist)
   log_working_directory (1);
 
   VA_START(args, fmt);
-  voutputf (OT_MISC_ERROR, flocp, OF_PREPEND_PREFIX|OF_APPEND_NEWLINE|OF_FLUSH, fmt, args);
+  voutputf (OT_MISC_ERROR, flocp, OF_PREPEND_PREFIX|OF_APPEND_NEWLINE, fmt, args);
   VA_END (args);
 }
 
