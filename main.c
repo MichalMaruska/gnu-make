@@ -267,8 +267,8 @@ static struct stringlist *new_files = 0;
 /* List of strings to be eval'd.  */
 static struct stringlist *eval_strings = 0;
 
-/* List of strings passed as --color=<string>.  */
-static struct stringlist *color_strings = 0;
+/* List of strings passed as --format=<string>.  */
+static struct stringlist *format_strings = 0;
 
 /* If nonzero, we should just print usage and exit.  */
 
@@ -313,8 +313,6 @@ static const char *const usage[] =
   -C DIRECTORY, --directory=DIRECTORY\n\
                               Change to DIRECTORY before doing anything.\n"),
     N_("\
-  --color[=(yes|no)]          Enable/disable colorization of output.\n"),
-    N_("\
   -d                          Print lots of debugging information.\n"),
     N_("\
   --debug[=FLAGS]             Print various types of debugging information.\n"),
@@ -326,6 +324,9 @@ static const char *const usage[] =
     N_("\
   -f FILE, --file=FILE, --makefile=FILE\n\
                               Read FILE as a makefile.\n"),
+    N_("\
+  --format=(plain|color|colour)]\n\
+                              Enable/disable colorization of output.\n"),
     N_("\
   -h, --help                  Print this message and exit.\n"),
     N_("\
@@ -431,8 +432,7 @@ static const struct command_switch switches[] =
     { CHAR_MAX+5, flag, &warn_undefined_variables_flag, 1, 1, 0, 0, 0,
       "warn-undefined-variables" },
     { CHAR_MAX+6, string, &eval_strings, 1, 0, 0, 0, 0, "eval" },
-    { CHAR_MAX+7, string, &color_strings, 1, 1, 0, "yes", 0, "color" },
-    { CHAR_MAX+8, string, &color_strings, 1, 1, 0, "yes", 0, "colour" },
+    { CHAR_MAX+7, string, &format_strings, 1, 1, 0, 0, 0, "format" },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0 }
   };
 
@@ -1673,23 +1673,24 @@ main (int argc, char **argv, char **envp)
       define_variable_cname ("-*-eval-flags-*-", value, o_automatic, 0);
     }
 
-  if (color_strings)
+  if (format_strings)
     {
       /* Be strict: Check all occurances for invalid values */
       unsigned int i;
-      for (i = 0; i < color_strings->idx; ++i)
+      const char * last_string = format_strings->list[format_strings->idx - 1];
+      for (i = 0; i < format_strings->idx; ++i)
         {
-          const char * request = color_strings->list[i];
-          if (streq("yes", request) || streq("no", request))
+          const char * request = format_strings->list[i];
+          if (streq("plain", request) || streq("color", request) || streq("colour", request))
             {
               continue;
             }
-          fatal (NILF, _("parameter error: --color=%s not supported. "
-                "Try --color, --color=yes, or --color=no, instead"), request);
+          fatal (NILF, _("parameter error: format '%s' not supported. "
+                "Valid formats are 'plain' and 'color'/'colour'"), request);
         }
 
       /* Enable/disable color based on the last request */
-      color_flag = streq("yes", color_strings->list[color_strings->idx - 1]);
+      color_flag = streq("color", last_string) || streq("colour", last_string);
       DB(DB_VERBOSE, ("Colorization %s\n", color_flag ? "enabled" : "disabled"));
 
       apply_make_colors ();
