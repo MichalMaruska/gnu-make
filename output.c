@@ -19,6 +19,7 @@ this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "debug.h"
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 
 #define COLOR_BOLD_RED      "1;31"
@@ -215,10 +216,12 @@ void voutputf(message_t type, const struct floc *flocp, int flags, const char * 
   FILE * target = NULL;
   const char * color = NULL;
   int colorize = color_flag;
-  const int append_newline = (flags & OF_APPEND_NEWLINE);
+  int append_newline;
 
   if ((format == 0) || (format[0] == '\0'))
     return;
+
+  append_newline = (format[strlen(format) - 1] != '\n');
 
   /* Determine target file (i.e. stdout or stderr) and color to pick */
   switch (type)
