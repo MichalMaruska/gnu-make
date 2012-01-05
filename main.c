@@ -3342,30 +3342,30 @@ log_working_directory (int entering)
   if (makelevel == 0)
     if (starting_directory == 0)
       if (entering)
-        outputf (OT_DIR_ENTER, 0, 0, _("%s: Entering an unknown directory\n"), program);
+        outputf (OT_DIR_ENTER, 0, _("%s: Entering an unknown directory\n"), program);
       else
-        outputf (OT_DIR_LEAVE, 0, 0, _("%s: Leaving an unknown directory\n"), program);
+        outputf (OT_DIR_LEAVE, 0, _("%s: Leaving an unknown directory\n"), program);
     else
       if (entering)
-        outputf (OT_DIR_ENTER, 0, 0, _("%s: Entering directory '%s'\n"),
-                 program, starting_directory);
+        outputf (OT_DIR_ENTER, 0, _("%s: Entering directory '%s'\n"),
+                program, starting_directory);
       else
-        outputf (OT_DIR_LEAVE, 0, 0, _("%s: Leaving directory '%s'\n"),
-                 program, starting_directory);
+        outputf (OT_DIR_LEAVE, 0, _("%s: Leaving directory '%s'\n"),
+                program, starting_directory);
   else
     if (starting_directory == 0)
       if (entering)
-        outputf (OT_DIR_ENTER, 0, 0, _("%s[%u]: Entering an unknown directory\n"),
+        outputf (OT_DIR_ENTER, 0, _("%s[%u]: Entering an unknown directory\n"),
                 program, makelevel);
       else
-        outputf (OT_DIR_LEAVE, 0, 0, _("%s[%u]: Leaving an unknown directory\n"),
+        outputf (OT_DIR_LEAVE, 0, _("%s[%u]: Leaving an unknown directory\n"),
                 program, makelevel);
     else
       if (entering)
-        outputf (OT_DIR_ENTER, 0, 0, _("%s[%u]: Entering directory '%s'\n"),
+        outputf (OT_DIR_ENTER, 0, _("%s[%u]: Entering directory '%s'\n"),
                 program, makelevel, starting_directory);
       else
-        outputf (OT_DIR_LEAVE, 0, 0, _("%s[%u]: Leaving directory '%s'\n"),
+        outputf (OT_DIR_LEAVE, 0, _("%s[%u]: Leaving directory '%s'\n"),
                 program, makelevel, starting_directory);
 
   /* Flush stdout to be sure this comes before any stderr output.  */

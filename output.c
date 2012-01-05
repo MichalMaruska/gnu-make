@@ -211,7 +211,7 @@ void apply_make_colors()
 }
 
 
-void voutputf(message_t type, const struct floc *flocp, int flags, const char * format, va_list args)
+void voutputf(int flags, const struct floc *flocp, const char * format, va_list args)
 {
   FILE * target = NULL;
   const char * color = NULL;
@@ -224,7 +224,7 @@ void voutputf(message_t type, const struct floc *flocp, int flags, const char * 
   append_newline = (format[strlen(format) - 1] != '\n');
 
   /* Determine target file (i.e. stdout or stderr) and color to pick */
-  switch (type)
+  switch (flags & OT_MASK)
     {
       case OT_DIR_ENTER: target = stdout; color = color_dir_enter; break;
       case OT_DIR_LEAVE: target = stdout; color = color_dir_leave; break;
@@ -245,7 +245,7 @@ void voutputf(message_t type, const struct floc *flocp, int flags, const char * 
   /* Output  prefix */
   if (flags & OF_PREPEND_PREFIX)
     {
-      const char * catchy = (type == OT_MISC_FATAL) ? "*** " : "";
+      const char * catchy = ((flags & OT_MASK) == OT_MISC_FATAL) ? "*** " : "";
       if (flocp && flocp->filenm)
         fprintf (target, "%s:%lu: %s", flocp->filenm, flocp->lineno, catchy);
       else if (makelevel == 0)
@@ -258,7 +258,7 @@ void voutputf(message_t type, const struct floc *flocp, int flags, const char * 
   /* TODO make more portabe, see misc.c */
   vfprintf (target, format, args);
 
-  if (type == OT_MISC_FATAL)
+  if ((flags & OT_MASK) == OT_MISC_FATAL)
     fputs (_(".  Stop."), target);
 
   /* Output finishing newline and color stop */
@@ -274,12 +274,12 @@ void voutputf(message_t type, const struct floc *flocp, int flags, const char * 
 }
 
 
-void outputf(message_t type, const struct floc *flocp, int flags, const char * format, ...)
+void outputf(int flags, const struct floc *flocp, const char * format, ...)
 {
   va_list args;
 
   /* TODO make more portabe, see misc.c */
   va_start (args, format);
-  voutputf(type, flocp, flags, format, args);
+  voutputf(flags, flocp, format, args);
   va_end (args);
 }

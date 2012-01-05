@@ -25,24 +25,23 @@ this program.  If not, see <http://www.gnu.org/licenses/>.  */
 extern int color_flag;
 
 
-typedef enum _message_t {
-	OT_DIR_ENTER,
-	OT_DIR_LEAVE,
-	OT_MISC_MESSAGE,
-	OT_MISC_ERROR,
-	OT_MISC_FATAL,
-	OT_EXECUTION
-} message_t;
+typedef enum _output_config_t {
+	OT_MASK = 0xff,
+	OT_DIR_ENTER = 0x01,
+	OT_DIR_LEAVE = 0x02,
+	OT_MISC_MESSAGE = 0x03,
+	OT_MISC_ERROR = 0x04,
+	OT_MISC_FATAL = 0x05,
+	OT_EXECUTION = 0x06,
 
-enum {
-	OF_PREPEND_PREFIX  = 0x2
-};
+	OF_PREPEND_PREFIX = 0x100
+} output_config_t;
 
 
 struct floc;
 
-void outputf(message_t, const struct floc *, int, const char *, ...);
-void voutputf(message_t, const struct floc *, int, const char *, va_list);
+void outputf(int, const struct floc *, const char *, ...);
+void voutputf(int, const struct floc *, const char *, va_list);
 
 void apply_make_colors();
 

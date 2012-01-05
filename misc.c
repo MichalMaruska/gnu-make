@@ -235,9 +235,9 @@ message (prefix, fmt, va_alist)
   log_working_directory (1);
   if (fmt != 0)
     {
-      const int flags = (prefix ? OF_PREPEND_PREFIX : 0);
+      const int flags = (prefix ? OF_PREPEND_PREFIX : 0) | OT_MISC_MESSAGE;
       VA_START (args, fmt);
-      voutputf (OT_MISC_MESSAGE, 0, flags, fmt, args);
+      voutputf (flags, 0, fmt, args);
       VA_END (args);
     }
 }
@@ -261,7 +261,7 @@ error (flocp, fmt, va_alist)
   log_working_directory (1);
 
   VA_START(args, fmt);
-  voutputf (OT_MISC_ERROR, flocp, OF_PREPEND_PREFIX, fmt, args);
+  voutputf (OT_MISC_ERROR|OF_PREPEND_PREFIX, flocp, fmt, args);
   VA_END (args);
 }
 
@@ -284,7 +284,7 @@ fatal (flocp, fmt, va_alist)
   log_working_directory (1);
 
   VA_START(args, fmt);
-  voutputf (OT_MISC_FATAL, flocp, OF_PREPEND_PREFIX, fmt, args);
+  voutputf (OT_MISC_FATAL|OF_PREPEND_PREFIX, flocp, fmt, args);
   VA_END (args);
 
   die (2);
