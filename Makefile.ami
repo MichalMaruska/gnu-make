@@ -117,12 +117,12 @@ TEXI2DVI = texi2dvi
 ETAGS = etags -w
 CTAGS = ctags -w
 
-#guile = guile.o
 
+#guile = guile.o
 objs = commands.o job.o dir.o file.o misc.o main.o read.o remake.o   \
        rule.o implicit.o default.o variable.o expand.o function.o    \
        vpath.o version.o ar.o arscan.o signame.o strcache.o hash.o   \
-       remote-$(REMOTE).o $(GETOPT) $(ALLOCA) $(extras) $(guile) output.o
+       remote-$(REMOTE).o $(GETOPT) $(ALLOCA) $(extras) $(guile) output.o output_ascii.o
 
 srcs = $(srcdir)commands.c $(srcdir)job.c $(srcdir)dir.c             \
        $(srcdir)file.c $(srcdir)getloadavg.c $(srcdir)misc.c         \
@@ -130,8 +130,8 @@ srcs = $(srcdir)commands.c $(srcdir)job.c $(srcdir)dir.c             \
        $(srcdir)rule.c $(srcdir)implicit.c $(srcdir)default.c        \
        $(srcdir)variable.c $(srcdir)expand.c $(srcdir)function.c     \
        $(srcdir)vpath.c $(srcdir)version.c $(srcdir)hash.c           \
-       $(srcdir)guile.c $(srcdir)remote-$(REMOTE).c                  \
-       $(srcdir)output.c                                             \
+       $(srcdir)guile.c $(srcdir)remote-$(REMOTE).c                  \                   \
+       $(srcdir)output.c $(srcdir)output_ascii.c                     \
        $(srcdir)ar.c $(srcdir)arscan.c $(srcdir)strcache.c           \
        $(srcdir)signame.c $(srcdir)signame.h $(GETOPT_SRC)           \
        $(srcdir)commands.h $(srcdir)dep.h $(srcdir)filedep.h         \
@@ -297,6 +297,7 @@ expand.o: expand.c make.h filedef.h job.h commands.h variable.h
 function.o: function.c make.h filedef.h variable.h dep.h job.h \
  commands.h amiga.h
 output.o: output.c output.h
+output_ascii.o: output_ascii.c output_ascii.h
 vpath.o: vpath.c make.h filedef.h variable.h
 strcache.o: strcache.c make.h hash.h
 version.o: version.c

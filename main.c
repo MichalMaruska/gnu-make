@@ -24,6 +24,7 @@ this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "debug.h"
 #include "getopt.h"
 #include "output.h"
+#include "output_ascii.h"
 
 #include <assert.h>
 #ifdef _AMIGA

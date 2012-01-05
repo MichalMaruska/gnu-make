@@ -34,6 +34,7 @@ gcc  -c -I. -I./glob -DHAVE_CONFIG_H -O2 -g variable.c -o variable.o
 gcc  -c -I. -I./glob -DHAVE_CONFIG_H -O2 -g expand.c -o expand.o
 gcc  -c -I. -I./glob -DHAVE_CONFIG_H -O2 -g function.c -o function.o
 gcc  -c -I. -I./glob -DHAVE_CONFIG_H -O2 -g output.c -o output.o
+gcc  -c -I. -I./glob -DHAVE_CONFIG_H -O2 -g output_ascii.c -o output_ascii.o
 gcc  -c -I. -I./glob -DHAVE_CONFIG_H -O2 -g vpath.c -o vpath.o
 gcc  -c -I. -I./glob -DHAVE_CONFIG_H -O2 -g hash.c -o hash.o
 gcc  -c -I. -I./glob -DHAVE_CONFIG_H -O2 -g strcache.c -o strcache.o
