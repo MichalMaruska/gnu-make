@@ -17,6 +17,7 @@ this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "make.h"
 #include "dep.h"
 #include "debug.h"
+#include "output.h"
 
 /* Variadic functions.  We go through contortions to allow proper function
    prototypes for both ANSI and pre-ANSI C compilers, and also for those
@@ -232,23 +233,13 @@ message (prefix, fmt, va_alist)
 #endif
 
   log_working_directory (1);
-
   if (fmt != 0)
     {
-      if (prefix)
-	{
-	  if (makelevel == 0)
-	    printf ("%s: ", program);
-	  else
-	    printf ("%s[%u]: ", program, makelevel);
-	}
+      const int flags = (prefix ? OF_PREPEND_PREFIX : 0) | OF_APPEND_NEWLINE|OF_FLUSH;
       VA_START (args, fmt);
-      VA_PRINTF (stdout, fmt, args);
+      voutputf (OT_MISC_MESSAGE, 0, flags, fmt, args);
       VA_END (args);
-      putchar ('\n');
     }
-
-  fflush (stdout);
 }
 
 /* Print an error message.  */
@@ -269,19 +260,9 @@ error (flocp, fmt, va_alist)
 
   log_working_directory (1);
 
-  if (flocp && flocp->filenm)
-    fprintf (stderr, "%s:%lu: ", flocp->filenm, flocp->lineno);
-  else if (makelevel == 0)
-    fprintf (stderr, "%s: ", program);
-  else
-    fprintf (stderr, "%s[%u]: ", program, makelevel);
-
   VA_START(args, fmt);
-  VA_PRINTF (stderr, fmt, args);
+  voutputf (OT_MISC_ERROR, flocp, OF_PREPEND_PREFIX|OF_APPEND_NEWLINE|OF_FLUSH, fmt, args);
   VA_END (args);
-
-  putc ('\n', stderr);
-  fflush (stderr);
 }
 
 /* Print an error message and exit.  */
@@ -302,18 +283,9 @@ fatal (flocp, fmt, va_alist)
 
   log_working_directory (1);
 
-  if (flocp && flocp->filenm)
-    fprintf (stderr, "%s:%lu: *** ", flocp->filenm, flocp->lineno);
-  else if (makelevel == 0)
-    fprintf (stderr, "%s: *** ", program);
-  else
-    fprintf (stderr, "%s[%u]: *** ", program, makelevel);
-
   VA_START(args, fmt);
-  VA_PRINTF (stderr, fmt, args);
+  voutputf (OT_MISC_FATAL, flocp, OF_PREPEND_PREFIX|OF_APPEND_NEWLINE, fmt, args);
   VA_END (args);
-
-  fputs (_(".  Stop.\n"), stderr);
 
   die (2);
 }

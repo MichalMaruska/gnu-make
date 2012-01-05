@@ -42,6 +42,7 @@ make_SOURCES =	ar.c arscan.c commands.c default.c dir.c expand.c file.c \
 		function.c getopt.c getopt1.c implicit.c job.c load.c main.c \
 		misc.c read.c remake.c rule.c signame.c \
 		strcache.c variable.c version.c vpath.c hash.c \
+		output.c \
 		$(remote)
 
 if HAVE_GUILE
@@ -51,7 +52,7 @@ endif
 EXTRA_make_SOURCES = vmsjobs.c remote-stub.c remote-cstms.c
 
 noinst_HEADERS = commands.h dep.h filedef.h job.h make.h rule.h variable.h \
-		debug.h getopt.h gettext.h hash.h
+		debug.h getopt.h gettext.h hash.h output.h
 
 make_LDADD =	@LIBOBJS@ @ALLOCA@ $(GLOBLIB) @GETLOADAVG_LIBS@ @LIBINTL@ \
 		$(GUILE_LIBS)
