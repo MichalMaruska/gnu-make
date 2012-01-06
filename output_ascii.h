@@ -27,7 +27,6 @@ extern int color_flag;
 
 struct floc;
 
-void outputf_ascii(int, const struct floc *, const char *, ...);
 void voutputf_ascii(int, const struct floc *, const char *, va_list);
 
 void apply_make_colors();
