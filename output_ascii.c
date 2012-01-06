@@ -212,17 +212,68 @@ void apply_make_colors()
 }
 
 
+static void start_color(FILE * target, const char * color)
+{
+  fprintf (target, "\033[%sm%s", color,
+      erase_in_line_flag ? ERASE_IN_LINE : "");
+}
+
+
+static void stop_color(FILE * target)
+{
+  fprintf (target, "\033[m%s",
+    erase_in_line_flag ? ERASE_IN_LINE : "");
+}
+
+
+static char * malloc_vsprintf(const char * format, va_list ap)
+{
+  const size_t INCREMENT = 4096;
+  size_t size = INCREMENT;
+
+  char * buffer = malloc (size);
+  if (! buffer)
+    return 0;
+
+  buffer[0] = '\0';
+  for (;;)
+    {
+      const int chars_copied = vsnprintf (buffer, size, format, ap);
+      if (chars_copied == (int)(size - 1))
+        {
+          free(buffer);
+          size += INCREMENT;
+          buffer = malloc (size);
+          if (! buffer)
+            return 0;
+
+          buffer[0] = '\0';
+        }
+      else
+        return buffer;
+    }
+}
+
+
 void voutputf_ascii(int flags, const struct floc *flocp, const char * format, va_list args)
 {
   FILE * target = NULL;
   const char * color = NULL;
   int colorize = color_flag;
-  int append_newline;
+  const char * ensure_newline;
+  const char * const fatal_suffix = ((flags & OT_MASK) == OT_MISC_FATAL) ? _(".  Stop.") : "";
+  char * content;
+  char * non_null_content;
 
   if ((format == 0) || (format[0] == '\0'))
     return;
 
-  append_newline = (format[strlen(format) - 1] != '\n');
+  content = malloc_vsprintf (format, args);
+  non_null_content = content ? content : _("<out of memory>");
+
+  ensure_newline = ((non_null_content[0] == '\0')
+      || (non_null_content[strlen(non_null_content) - 1] != '\n'))
+      ? "\n" : "";
 
   /* Determine target file (i.e. stdout or stderr) and color to pick */
   switch (flags & OT_MASK)
@@ -238,38 +289,28 @@ void voutputf_ascii(int flags, const struct floc *flocp, const char * format, va
   assert(target);
   assert(color);
 
-  /* Output color start */
   if (colorize)
-    fprintf (target, "\033[%sm%s", color,
-        erase_in_line_flag ? ERASE_IN_LINE : "");
+    start_color(target, color);
 
-  /* Output  prefix */
   if (flags & OF_PREPEND_PREFIX)
     {
       const char * catchy = ((flags & OT_MASK) == OT_MISC_FATAL) ? "*** " : "";
       if (flocp && flocp->filenm)
-        fprintf (target, "%s:%lu: %s", flocp->filenm, flocp->lineno, catchy);
+        fprintf (target, _("%s:%lu: %s%s%s%s"), flocp->filenm, flocp->lineno, catchy, non_null_content, fatal_suffix, ensure_newline);
       else if (makelevel == 0)
-        fprintf (target, "%s: %s", program, catchy);
+        fprintf (target, _("%s: %s%s%s%s"), program, catchy, non_null_content, fatal_suffix, ensure_newline);
       else
-        fprintf (target, "%s[%u]: %s", program, makelevel, catchy);
+        fprintf (target, _("%s[%u]: %s%s%s%s"), program, makelevel, catchy, non_null_content, fatal_suffix, ensure_newline);
+    }
+  else
+    {
+      fprintf (target, _("%s%s%s"), non_null_content, fatal_suffix, ensure_newline);
     }
 
-  /* Output actual message */
-  /* TODO make more portabe, see misc.c */
-  vfprintf (target, format, args);
+  free(content);
 
-  if ((flags & OT_MASK) == OT_MISC_FATAL)
-    fputs (_(".  Stop."), target);
-
-  /* Output finishing newline and color stop */
-  if (colorize)
-    fprintf (target, "%s\033[m%s",
-        append_newline ? "\n" : "",
-		erase_in_line_flag ? ERASE_IN_LINE : "");
-  else if (append_newline)
-    fputc ('\n', target);
-
-  /* Flush */
   fflush(target);
+
+  if (colorize)
+    stop_color(target);
 }
