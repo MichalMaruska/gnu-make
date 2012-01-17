@@ -1,6 +1,6 @@
 GNU make NEWS                                               -*-indented-text-*-
   History of user-visible changes.
-  17 April 2011
+  15 January 2012
 
 See the end of this file for copyrights and conditions.
 
@@ -31,6 +31,11 @@ http://sv.gnu.org/bugs/index.php?group=make&report_id=111&fix_release_id=101&set
   Variables ending in "!" previously defined as "variable!= value" will now be
   interpreted as shell assignment.  Change your assignment to add whitespace
   between the "!" and "=": "variable! = value"
+
+* New Feature: GNU Guile integration
+  This version of GNU make can be compiled with GNU Guile integration.
+  GNU Guile serves as an embedded extension language for make.
+  See the "Guile Function" section in the GNU Make manual for details.
 
 * New command line option: --trace enables tracing of targets.  When enabled
   the recipe to be invoked is printed even if it would otherwise be suppressed
@@ -1142,9 +1147,10 @@ Version 3.05
 (Changes from versions 1 through 3.05 were never recorded.  Sorry.)
 
 -------------------------------------------------------------------------------
-Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997,
-1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,
-2010 Free Software Foundation, Inc.  This file is part of GNU Make.
+Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
+1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
+2012 Free Software Foundation, Inc.
+This file is part of GNU Make.
 
 GNU Make is free software; you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software

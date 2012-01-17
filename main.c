@@ -1,7 +1,7 @@
 /* Argument parsing and main program of GNU Make.
-Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997,
-1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,
-2010 Free Software Foundation, Inc.
+Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
+1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
+2012 Free Software Foundation, Inc.
 This file is part of GNU Make.
 
 GNU Make is free software; you can redistribute it and/or modify it under the
@@ -910,7 +910,6 @@ open_tmpfile(char **name, const char *template)
 #endif
 }
 
-
 #ifdef _AMIGA
 int
 main (int argc, char **argv)
@@ -958,7 +957,7 @@ main (int argc, char **argv, char **envp)
 #endif
 
   /* Needed for OS/2 */
-  initialize_main(&argc, &argv);
+  initialize_main (&argc, &argv);
 
   reading_file = 0;
 
@@ -1125,6 +1124,7 @@ main (int argc, char **argv, char **envp)
     }
   else
     directory_before_chdir = xstrdup (current_directory);
+
 #ifdef  __MSDOS__
   /* Make sure we will return to the initial directory, come what may.  */
   atexit (msdos_return_to_initial_directory);
@@ -1155,6 +1155,11 @@ main (int argc, char **argv, char **envp)
 
     define_variable_cname (".FEATURES", features, o_default, 0);
   }
+
+#ifdef HAVE_GUILE
+  /* Configure GNU Guile support */
+  setup_guile ();
+#endif
 
   /* Read in variables from the environment.  It is important that this be
      done before $(MAKE) is figured out so its definitions will not be
@@ -2362,7 +2367,7 @@ main (int argc, char **argv, char **envp)
   }
 
   /* NOTREACHED */
-  return 0;
+  exit(0);
 }
 
 /* Parsing of arguments, decoding of switches.  */
@@ -3110,7 +3115,7 @@ print_version (void)
      year, and none of the rest of it should be translated (including the
      word "Copyright", so it hardly seems worth it.  */
 
-  printf ("%sCopyright (C) 2010  Free Software Foundation, Inc.\n", precede);
+  printf ("%sCopyright (C) 2012 Free Software Foundation, Inc.\n", precede);
 
   printf (_("%sLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\
 %sThis is free software: you are free to change and redistribute it.\n\

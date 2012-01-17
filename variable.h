@@ -1,7 +1,7 @@
 /* Definitions for using variables in GNU Make.
-Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997,
-1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,
-2010 Free Software Foundation, Inc.
+Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
+1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
+2012 Free Software Foundation, Inc.
 This file is part of GNU Make.
 
 GNU Make is free software; you can redistribute it and/or modify it under the
@@ -167,6 +167,9 @@ struct variable *try_variable_definition (const struct floc *flocp, char *line,
                                           int target_var);
 void init_hash_global_variable_set (void);
 void hash_init_function_table (void);
+void define_new_function(const struct floc *flocp,
+                         const char *name, int min, int max, int expand,
+                         char *(*func)(char *, char **, const char *));
 struct variable *lookup_variable (const char *name, unsigned int length);
 struct variable *lookup_variable_in_set (const char *name, unsigned int length,
                                          const struct variable_set *set);

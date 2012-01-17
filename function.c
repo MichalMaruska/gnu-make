@@ -1,7 +1,7 @@
 /* Builtin function expansion for GNU Make.
-Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997,
-1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,
-2010 Free Software Foundation, Inc.
+Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
+1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
+2012 Free Software Foundation, Inc.
 This file is part of GNU Make.
 
 GNU Make is free software; you can redistribute it and/or modify it under the
@@ -2411,6 +2411,33 @@ func_call (char *o, char **argv, const char *funcname UNUSED)
   pop_variable_scope ();
 
   return o + strlen (o);
+}
+
+void
+define_new_function(const struct floc *flocp,
+                    const char *name, int min, int max, int expand,
+                    char *(*func)(char *, char **, const char *))
+{
+  size_t len = strlen (name);
+  struct function_table_entry *ent = xmalloc (sizeof (struct function_table_entry));
+
+  if (len > 255)
+    fatal (flocp, _("Function name too long: %s\n"), name);
+  if (min < 0 || min > 255)
+    fatal (flocp, _("Invalid minimum argument count (%d) for function %s%s\n"),
+           min, name);
+  if (max < 0 || max > 255 || max < min)
+    fatal (flocp, _("Invalid maximum argument count (%d) for function %s%s\n"),
+           max, name);
+
+  ent->name = name;
+  ent->len = len;
+  ent->minimum_args = min;
+  ent->maximum_args = max;
+  ent->expand_args = expand ? 1 : 0;
+  ent->func_ptr = func;
+
+  hash_insert (&function_table, ent);
 }
 
 void

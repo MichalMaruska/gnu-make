@@ -1,10 +1,62 @@
+2012-01-16  Paul Smith  <psmith@gnu.org>
+
+	* make.h (PATH_SEPARATOR_CHAR): Allow resetting for crosscompiling
+	for Windows.  Patch by Chris Sutcliffe <ir0nh34d@gmail.com>
+	Fixes Savannah bug #34818.
+
+2012-01-15  Paul Smith  <psmith@gnu.org>
+
+	* variable.h: Prototype an interface for defining new make functions.
+	* function.c (define_new_function): Define it.
+	(func_guile): Remove the "guile" function.
+	(function_table_init): Ditto.
+	* guile.c (func_guile): Add the "guile" function here.
+	(setup_guile): Call define_new_function() to define it.
+	(guile_eval_string): Obsolete.
+
+	* all: Update copyright notices.
+
+2012-01-12  Paul Smith  <psmith@gnu.org>
+
+	Support GNU Guile as an embedded extension language for GNU make.
+
+	* NEWS: Note the new Guile capability.
+	* Makefile.am (EXTRA_DIST, make_SOURCES): Add new guile source files.
+	(AM_CFLAGS): Add Guile compiler flags.
+	(guile): Add a rule for converting default SCM into a C header.
+	* configure.in: Add support for --with-guile.
+	Also, convert the entire file to properly escaped autoconf m4, and
+	utilize newer features such as AS_IF() and AS_CASE().
+	* doc/make.texi (Guile Function): Document the GNU guile integration.
+	* make.h (guile_eval_string, guile_boot): Prototypes for Guile.
+	* main.c (main): Run guile_boot() to handle main().
+	(real_main): All the previous content of main() is here.
+	(real_main): Add "guile" to the .FEATURES variable.
+	* function.c (func_guile): Call Guile.
+	* guile.c: New file implementing GNU make integration with GNU Guile.
+	* gmk-default.scm: The integration of GNU make with Guile uses
+	Guile itself for much of the parsing and conversion of return
+	types, etc.  This implementation is embedded into GNU make.
+	* config.h-vms.template: Disable Guile support.
+	* config.h.W32.template: Ditto.
+	* configh.dos.template: Ditto.
+	* config.ami.template: Ditto.
+	* makefile.vms: Add new Guile files.
+	* Makefile.DOS.template: Ditto.
+	* Makefile.ami: Ditto.
+	* NMakefile.template: Ditto.
+	* SMakefile.template: Ditto.
+	* build_w32.bat: Ditto.
+	* dosbuild.bat: Ditto.
+	* make_msvc_net2001.vcproj: Ditto.
+
 2011-11-15  Paul Smith  <psmith@gnu.org>
 
 	* main.c (main): Use %ld when printing DWORD values.
 	* job.c (new_job): Ditto.
 	* w32/include/sub_proc.h: Use const.
 	* w32/subproc/sub_proc.c (open_jobserver_semaphore): Use const.
-	Fixes Savannah bug #34830.  Patches suggested by Ozkan Sezer.
+	Fixes Savannah bug #34830.  Changes suggested by Ozkan Sezer.
 
 	* configure.in (MAKE_JOBSERVER): Enable jobserver on W32 systems.
 	* config.h.W32.template (MAKE_JOBSERVER): Ditto.
@@ -4303,8 +4355,8 @@ See ChangeLog.2, available in the CVS repository at:
 for earlier changes.
 
 
-Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Free
-Software Foundation, Inc.
+Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,
+2011, 2012 Free Software Foundation, Inc.
 This file is part of GNU Make.
 
 GNU Make is free software; you can redistribute it and/or modify it under the

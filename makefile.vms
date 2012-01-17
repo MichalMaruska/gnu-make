@@ -1,7 +1,7 @@
 # -*-Makefile-*- to build GNU make on VMS
 #
 # Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
-# 2006, 2007, 2008, 2009, 2010 Free Software Foundation, Inc.
+# 2006, 2007, 2008, 2009, 2010, 2011, 2012 Free Software Foundation, Inc.
 # This file is part of GNU Make.
 #
 # GNU Make is free software; you can redistribute it and/or modify it under
@@ -89,11 +89,15 @@ mandir = []
 # Number to put on the man page filename.
 manext = 1
 
+#guile = ,guile.obj
+
 objs = commands.obj,job.obj,dir.obj,file.obj,misc.obj,hash.obj,\
        main.obj,read.obj,remake.obj,rule.obj,implicit.obj,\
        default.obj,variable.obj,expand.obj,function.obj,strcache.obj,\
-       vpath.obj,version.obj$(ARCHIVES)$(ALLOCA)$(extras)$(getopt)$(glob)
-srcs = commands.c job.c dir.c file.c misc.c  hash.c \
+       vpath.obj,version.obj\
+       $(ARCHIVES)$(ALLOCA)$(extras)$(getopt)$(glob)$(guile)
+
+srcs = commands.c job.c dir.c file.c misc.c guile.c hash.c \
 	main.c read.c remake.c rule.c implicit.c \
 	default.c variable.c expand.c function.c strcache.c \
 	vpath.c version.c vmsfunctions.c vmsify.c $(ARCHIVES_SRC) $(ALLOCASRC) \
@@ -124,6 +128,7 @@ misc.obj: misc.c make.h dep.h
 hash.obj: hash.c make.h hash.h
 strcache.obj: strcache.c make.h hash.h
 main.obj: main.c make.h commands.h dep.h filedef.h variable.h job.h
+guile.obj: guile.c make.h debug.h dep.h gmk-default.h
 read.obj: read.c make.h commands.h dep.h filedef.h variable.h
 remake.obj: remake.c make.h commands.h job.h dep.h filedef.h
 rule.obj: rule.c make.h commands.h dep.h filedef.h variable.h rule.h

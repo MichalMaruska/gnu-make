@@ -1,7 +1,7 @@
 /* Miscellaneous global declarations and portability cruft for GNU Make.
-Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997,
-1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,
-2010 Free Software Foundation, Inc.
+Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
+1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
+2012 Free Software Foundation, Inc.
 This file is part of GNU Make.
 
 GNU Make is free software; you can redistribute it and/or modify it under the
@@ -315,11 +315,15 @@ char *strsignal (int signum);
 #define N_(msgid)           gettext_noop (msgid)
 #define S_(msg1,msg2,num)   ngettext (msg1,msg2,num)
 
-/* Handle other OSs.  */
-#ifndef PATH_SEPARATOR_CHAR
-# if defined(HAVE_DOS_PATHS)
-#  define PATH_SEPARATOR_CHAR ';'
-# elif defined(VMS)
+/* Handle other OSs.
+   To overcome an issue parsing paths in a DOS/Windows environment when
+   built in a unix based environment, override the PATH_SEPARATOR_CHAR
+   definition unless being built for Cygwin. */
+#if defined(HAVE_DOS_PATHS) && !defined(__CYGWIN__)
+# undef PATH_SEPARATOR_CHAR
+# define PATH_SEPARATOR_CHAR ';'
+#elif !defined(PATH_SEPARATOR_CHAR)
+# if defined (VMS)
 #  define PATH_SEPARATOR_CHAR ','
 # else
 #  define PATH_SEPARATOR_CHAR ':'
@@ -464,6 +468,10 @@ int strcache_iscached (const char *str);
 const char *strcache_add (const char *str);
 const char *strcache_add_len (const char *str, unsigned int len);
 int strcache_setbufsize (unsigned int size);
+
+/* Guile support  */
+int setup_guile (void);
+
 
 #ifdef  HAVE_VFORK_H
 # include <vfork.h>

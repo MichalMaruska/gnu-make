@@ -2,7 +2,8 @@
 # Makefile.in generated automatically by automake 1.2 from Makefile.am
 #
 # Copyright (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
-# 2004, 2005, 2006, 2007, 2008, 2009, 2010 Free Software Foundation, Inc.
+# 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Free Software
+# Foundation, Inc.
 # This file is part of GNU Make.
 #
 # GNU Make is free software; you can redistribute it and/or modify it under
@@ -89,7 +90,7 @@ INCLUDES =	-I$(srcdir)/glob -DLIBDIR=\"$(prefix)$(libdir)\" -DINCLUDEDIR=\"$(pre
 
 BUILT_SOURCES =	README build.sh-in
 
-EXTRA_DIST = 	$(BUILT_SOURCES) $(man_MANS) README.customs remote-cstms.c  make-stds.texi texinfo.tex SCOPTIONS SMakefile  Makefile.ami README.Amiga config.ami amiga.c amiga.h  NMakefile README.DOS configh.dos configure.bat makefile.com  README.W32 build_w32.bat config.h-W32 subproc.bat make.lnk  config.h-vms makefile.vms readme.vms vmsdir.h vmsfunctions.c  vmsify.c
+EXTRA_DIST = 	$(BUILT_SOURCES) $(man_MANS) README.customs remote-cstms.c  make-stds.texi texinfo.tex SCOPTIONS SMakefile  Makefile.ami README.Amiga config.ami amiga.c amiga.h  NMakefile README.DOS configh.dos configure.bat makefile.com  README.W32 build_w32.bat config.h-W32 subproc.bat make.lnk  config.h-vms makefile.vms readme.vms vmsdir.h vmsfunctions.c  vmsify.c gmk-default.scm gmk-default.h
 
 SUBDIRS =	glob doc
 mkinstalldirs = ${exec_prefix}/bin/gmkdir -p

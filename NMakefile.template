@@ -4,7 +4,7 @@
 # run 'build_w32.bat' instead.
 #
 # Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
-# 2006, 2007, 2008, 2009, 2010 Free Software Foundation, Inc.
+# 2006, 2007, 2008, 2009, 2010, 2011, 2012 Free Software Foundation, Inc.
 # This file is part of GNU Make.
 #
 # GNU Make is free software; you can redistribute it and/or modify it under
@@ -73,6 +73,8 @@ $(OUTDIR):
 
 LIBS = kernel32.lib user32.lib advapi32.lib
 
+#guile = $(OUTDIR)/guile.obj
+
 OBJS = \
 	$(OUTDIR)/ar.obj \
 	$(OUTDIR)/arscan.obj \
@@ -102,7 +104,8 @@ OBJS = \
 	$(OUTDIR)/glob.obj \
 	$(OUTDIR)/fnmatch.obj \
 	$(OUTDIR)/dirent.obj \
-	$(OUTDIR)/pathstuff.obj
+	$(OUTDIR)/pathstuff.obj \
+	$(guile)
 
 $(OUTDIR)/make.exe: $(OUTDIR) $(OBJS)
 	$(LINK) @<<
