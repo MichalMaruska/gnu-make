@@ -1,11 +1,8 @@
-Source: make-dfsg
-VCS-Git: git://git.debian.org/~srivasta/debian/make-dfsg.git
-VCS-Browser: http://git.debian.org/git/users/srivasta/debian/make-dfsg.git
+Source: make-color
 Section: devel
 Priority: standard
-Maintainer: Manoj Srivastava <srivasta@debian.org>
+Maintainer: Michal Maruska <mmaruska@gmail.com>
 Standards-Version: 3.8.3.0
-Homepage: http://www.gnu.org/software/make/
 Build-Depends: autoconf, automake | automaken, autopoint, file
 
 Package: make
