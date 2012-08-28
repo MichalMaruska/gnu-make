@@ -2,15 +2,15 @@ Source: make-color
 Section: devel
 Priority: standard
 Maintainer: Michal Maruska <mmaruska@gmail.com>
+Build-Depends: autoconf, automake | automaken, autopoint, file, debhelper (>= 5), cdbs
 Standards-Version: 3.8.3.0
-Build-Depends: autoconf, automake | automaken, autopoint, file
 
 Package: make
 Section: devel
 Priority: standard
 Suggests: make-doc
 Architecture: any
-Description: An utility for Directing compilation.
+Description: Utility for Directing compilation.
  GNU Make is an utility which controls the generation of executables and
  other target files of a program from the program's source files. It
  determines automatically which pieces of a large program need to be
