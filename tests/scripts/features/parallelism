@@ -99,14 +99,14 @@ ok:
 	\@sleep 4
 	\@echo Ok done",
               '-rR -j5', "Fail
-#MAKEFILE#:6: recipe for target `fail.1' failed
+#MAKEFILE#:6: recipe for target 'fail.1' failed
 #MAKE#: *** [fail.1] Error 1
 #MAKE#: *** Waiting for unfinished jobs....
 Fail
-#MAKEFILE#:6: recipe for target `fail.2' failed
+#MAKEFILE#:6: recipe for target 'fail.2' failed
 #MAKE#: *** [fail.2] Error 1
 Fail
-#MAKEFILE#:6: recipe for target `fail.3' failed
+#MAKEFILE#:6: recipe for target 'fail.3' failed
 #MAKE#: *** [fail.3] Error 1
 Ok done",
              512);
@@ -213,6 +213,23 @@ rm main.x");
     # Clean up
     rmfiles(qw(foo.y foo.y.in main.bar));
 }
+
+# Ensure intermediate/secondary files are not pruned incorrectly.
+# See Savannah bug #30653
+
+utouch(-15, 'file2');
+utouch(-10, 'file4');
+utouch(-5,  'file1');
+
+run_make_test(q!
+.INTERMEDIATE: file3
+file4: file3 ; @mv -f $< $@
+file3: file2 ; touch $@
+file2: file1 ; @touch $@
+!,
+              '--no-print-directory -j2', "touch file3");
+
+rmfiles('file1', 'file2', 'file3', 'file4');
 
 if ($all_tests) {
     # Jobserver FD handling is messed up in some way.

@@ -1,7 +1,5 @@
 /* Definitions of dependency data structures for GNU Make.
-Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
-1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
-2012 Free Software Foundation, Inc.
+Copyright (C) 1988-2012 Free Software Foundation, Inc.
 This file is part of GNU Make.
 
 GNU Make is free software; you can redistribute it and/or modify it under the
@@ -16,9 +14,9 @@ A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with
 this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-/* Flag bits for the second argument to `read_makefile'.
-   These flags are saved in the `changed' field of each
-   `struct dep' in the chain returned by `read_all_makefiles'.  */
+/* Flag bits for the second argument to 'read_makefile'.
+   These flags are saved in the 'changed' field of each
+   'struct dep' in the chain returned by 'read_all_makefiles'.  */
 
 #define RM_NO_DEFAULT_GOAL	(1 << 0) /* Do not set default goal.  */
 #define RM_INCLUDED		(1 << 1) /* Search makefile search path.  */
@@ -27,8 +25,8 @@ this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #define RM_NOFLAG		0
 
 /* Structure representing one dependency of a file.
-   Each struct file's `deps' points to a chain of these,
-   chained through the `next'. `stem' is the stem for this
+   Each struct file's 'deps' points to a chain of these,
+   chained through the 'next'. 'stem' is the stem for this
    dep line of static pattern rule or NULL.
 
    Note that the first two words of this match a struct nameseq.  */

@@ -3,9 +3,7 @@
    Please do not send bug reports or questions about it to
    the Make maintainers.
 
-Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
-1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
-2012 Free Software Foundation, Inc.
+Copyright (C) 1988-2012 Free Software Foundation, Inc.
 This file is part of GNU Make.
 
 GNU Make is free software; you can redistribute it and/or modify it under the
@@ -34,7 +32,7 @@ this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 char *remote_description = "Customs";
 
-/* File name of the Customs `export' client command.
+/* File name of the Customs 'export' client command.
    A full path name can be used to avoid some path-searching overhead.  */
 #define	EXPORT_COMMAND	"/usr/local/bin/export"
 
@@ -175,7 +173,7 @@ start_remote_job (char **argv, char **envp, int stdin_fd,
   len = Customs_MakeWayBill (&permit, normalized_cwd, argv[0], argv,
 			     envp, retport, waybill);
 
-  /* Modify the waybill as if the remote child had done `child_access ()'.  */
+  /* Modify the waybill as if the remote child had done 'child_access ()'.  */
   {
     WayBill *wb = (WayBill *) waybill;
     wb->ruid = wb->euid;
@@ -232,7 +230,7 @@ start_remote_job (char **argv, char **envp, int stdin_fd,
     }
   else if (pid == 0)
     {
-      /* Child side.  Run `export' to handle the connection.  */
+      /* Child side.  Run 'export' to handle the connection.  */
       static char sock_buf[20], retsock_buf[20], id_buf[20];
       static char *new_argv[6] =
 	{ EXPORT_COMMAND, "-id", sock_buf, retsock_buf, id_buf, 0 };
@@ -253,7 +251,7 @@ start_remote_job (char **argv, char **envp, int stdin_fd,
       exec_command (new_argv, envp);
     }
 
-  /* Parent side.  Return the `export' process's ID.  */
+  /* Parent side.  Return the 'export' process's ID.  */
   (void) close (retsock);
   (void) close (sock);
   *is_remote = 0;

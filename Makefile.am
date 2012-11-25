@@ -1,7 +1,6 @@
 # This is a -*-Makefile-*-, or close enough
 #
-# Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006,
-# 2007, 2008, 2009, 2010, 2011, 2012 Free Software Foundation, Inc.
+# Copyright (C) 1997-2012 Free Software Foundation, Inc.
 # This file is part of GNU Make.
 #
 # GNU Make is free software; you can redistribute it and/or modify it under
@@ -40,7 +39,7 @@ else
 endif
 
 make_SOURCES =	ar.c arscan.c commands.c default.c dir.c expand.c file.c \
-		function.c getopt.c getopt1.c implicit.c job.c main.c \
+		function.c getopt.c getopt1.c implicit.c job.c load.c main.c \
 		misc.c read.c remake.c rule.c signame.c \
 		strcache.c variable.c version.c vpath.c hash.c \
 		$(remote)
@@ -107,8 +106,8 @@ localedir =	$(datadir)/locale
 #
 
 # Whether or not make needs to be installed setgid.
-# The value should be either `true' or `false'.
-# On many systems, the getloadavg function (used to implement the `-l'
+# The value should be either 'true' or 'false'.
+# On many systems, the getloadavg function (used to implement the '-l'
 # switch) will not work unless make is installed setgid kmem.
 #
 inst_setgid = @NEED_SETGID@
@@ -124,7 +123,7 @@ install-exec-local:
 	     echo "chgrp $(inst_group) $$app && chmod g+s $$app"; \
 	   else \
 	     echo "$$app needs to be owned by group $(inst_group) and setgid;"; \
-	     echo "otherwise the \`-l' option will probably not work."; \
+	     echo "otherwise the '-l' option will probably not work."; \
 	     echo "You may need special privileges to complete the installation"; \
 	     echo "of $$app."; \
 	   fi; \

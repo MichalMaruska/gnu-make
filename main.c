@@ -1,7 +1,5 @@
 /* Argument parsing and main program of GNU Make.
-Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
-1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
-2012 Free Software Foundation, Inc.
+Copyright (C) 1988-2012 Free Software Foundation, Inc.
 This file is part of GNU Make.
 
 GNU Make is free software; you can redistribute it and/or modify it under the
@@ -489,7 +487,7 @@ struct variable * default_goal_var;
 
 struct file *default_file;
 
-/* Nonzero if we have seen the magic `.POSIX' target.
+/* Nonzero if we have seen the magic '.POSIX' target.
    This turns on pedantic compliance with POSIX.2.  */
 
 int posix_pedantic;
@@ -505,7 +503,7 @@ int second_expansion;
 
 int one_shell;
 
-/* Nonzero if we have seen the `.NOTPARALLEL' target.
+/* Nonzero if we have seen the '.NOTPARALLEL' target.
    This turns off parallel builds for this invocation of make.  */
 
 int not_parallel;
@@ -650,7 +648,7 @@ decode_debug_flags (void)
               db_level |= DB_BASIC | DB_VERBOSE;
               break;
             default:
-              fatal (NILF, _("unknown debug level specification `%s'"), p);
+              fatal (NILF, _("unknown debug level specification '%s'"), p);
             }
 
           while (*(++p) != '\0')
@@ -962,7 +960,7 @@ main (int argc, char **argv, char **envp)
   reading_file = 0;
 
 #if defined (__MSDOS__) && !defined (_POSIX_SOURCE)
-  /* Request the most powerful version of `system', to
+  /* Request the most powerful version of 'system', to
      make up for the dumb default shell.  */
   __system_flags = (__system_redirect
 		    | __system_use_shell
@@ -1151,6 +1149,12 @@ main (int argc, char **argv, char **envp)
 #ifdef MAKE_SYMLINKS
                            " check-symlink"
 #endif
+#ifdef HAVE_GUILE
+                           " guile"
+#endif
+#ifdef MAKE_LOAD
+                           " load"
+#endif
                            ;
 
     define_variable_cname (".FEATURES", features, o_default, 0);
@@ -1158,7 +1162,7 @@ main (int argc, char **argv, char **envp)
 
 #ifdef HAVE_GUILE
   /* Configure GNU Guile support */
-  setup_guile ();
+  guile_gmake_setup (NILF);
 #endif
 
   /* Read in variables from the environment.  It is important that this be
@@ -1198,7 +1202,7 @@ main (int argc, char **argv, char **envp)
                environment.  We used to rely on target_environment's
                v_default code to do this.  But that does not work for the
                case where an environment variable is redefined in a makefile
-               with `override'; it should then still be exported, because it
+               with 'override'; it should then still be exported, because it
                was originally in the environment.  */
             v->export = v_export;
 
@@ -1294,7 +1298,7 @@ main (int argc, char **argv, char **envp)
     {
       print_version ();
 
-      /* `make --version' is supposed to just print the version and exit.  */
+      /* 'make --version' is supposed to just print the version and exit.  */
       if (print_version_flag)
         die (0);
     }
@@ -1528,7 +1532,7 @@ main (int argc, char **argv, char **envp)
                )
 	      tmpdir = DEFAULT_TMPDIR;
 
-            template = alloca (strlen (tmpdir) + sizeof (DEFAULT_TMPFILE) + 1);
+            template = alloca (strlen (tmpdir) + CSTRLEN (DEFAULT_TMPFILE) + 2);
 	    strcpy (template, tmpdir);
 
 #ifdef HAVE_DOS_PATHS
@@ -1575,7 +1579,7 @@ main (int argc, char **argv, char **envp)
 #ifndef __EMX__ /* Don't use a SIGCHLD handler for OS/2 */
 #if defined(MAKE_JOBSERVER) || !defined(HAVE_WAIT_NOHANG)
   /* Set up to handle children dying.  This must be done before
-     reading in the makefiles so that `shell' function calls will work.
+     reading in the makefiles so that 'shell' function calls will work.
 
      If we don't have a hanging wait we have to fall back to old, broken
      functionality here and rely on the signal handler and counting
@@ -1638,7 +1642,7 @@ main (int argc, char **argv, char **envp)
     {
       char *p, *value;
       unsigned int i;
-      unsigned int len = sizeof ("--eval=") * eval_strings->idx;
+      unsigned int len = (CSTRLEN ("--eval=") + 1) * eval_strings->idx;
 
       for (i = 0; i < eval_strings->idx; ++i)
         {
@@ -1652,7 +1656,7 @@ main (int argc, char **argv, char **envp)
       for (i = 0; i < eval_strings->idx; ++i)
         {
           strcpy (p, "--eval=");
-          p += strlen (p);
+          p += CSTRLEN ("--eval=");
           p = quote_for_env (p, eval_strings->list[i]);
           *(p++) = ' ';
         }
@@ -1663,8 +1667,7 @@ main (int argc, char **argv, char **envp)
 
   /* Read all the makefiles.  */
 
-  read_makefiles
-    = read_all_makefiles (makefiles == 0 ? 0 : makefiles->list);
+  read_makefiles = read_all_makefiles (makefiles == 0 ? 0 : makefiles->list);
 
 #ifdef WINDOWS32
   /* look one last time after reading all Makefiles */
@@ -1734,14 +1737,14 @@ main (int argc, char **argv, char **envp)
       if (! open_jobserver_semaphore(cp))
         {
           DWORD err = GetLastError();
-          fatal (NILF, _("internal error: unable to open jobserver semaphore `%s': (Error %ld: %s)"), 
+          fatal (NILF, _("internal error: unable to open jobserver semaphore '%s': (Error %ld: %s)"), 
                  cp, err, map_windows32_error_to_string(err));
         }
       DB (DB_JOBS, (_("Jobserver client (semaphore %s)\n"), cp));
 #else
       if (sscanf (cp, "%d,%d", &job_fds[0], &job_fds[1]) != 2)
         fatal (NILF,
-               _("internal error: invalid --jobserver-fds string `%s'"), cp);
+               _("internal error: invalid --jobserver-fds string '%s'"), cp);
 
       DB (DB_JOBS,
           (_("Jobserver client (fds %d,%d)\n"), job_fds[0], job_fds[1]));
@@ -1768,7 +1771,7 @@ main (int argc, char **argv, char **envp)
             pfatal_with_name (_("dup jobserver"));
 
           error (NILF,
-                 _("warning: jobserver unavailable: using -j1.  Add `+' to parent make rule."));
+                 _("warning: jobserver unavailable: using -j1.  Add '+' to parent make rule."));
           job_slots = 1;
         }
 #endif
@@ -1846,12 +1849,11 @@ main (int argc, char **argv, char **envp)
       cp = xmalloc (MAX_PATH + 1);
       strcpy (cp, get_jobserver_semaphore_name());
 #else
-      cp = xmalloc ((sizeof ("1024")*2)+1);
+      cp = xmalloc ((CSTRLEN ("1024") * 2) + 2);
       sprintf (cp, "%d,%d", job_fds[0], job_fds[1]);
 #endif
 
-      jobserver_fds = (struct stringlist *)
-                        xmalloc (sizeof (struct stringlist));
+      jobserver_fds = xmalloc (sizeof (struct stringlist));
       jobserver_fds->list = xmalloc (sizeof (char *));
       jobserver_fds->list[0] = cp;
       jobserver_fds->idx = 1;
@@ -1871,7 +1873,7 @@ main (int argc, char **argv, char **envp)
 
   define_makeflags (1, 0);
 
-  /* Make each `struct dep' point at the `struct file' for the file
+  /* Make each 'struct dep' point at the 'struct file' for the file
      depended on.  Also do magic for special targets.  */
 
   snap_deps ();
@@ -1967,7 +1969,7 @@ main (int argc, char **argv, char **envp)
 			 you write your makefiles.)  */
 
 		      DB (DB_VERBOSE,
-                          (_("Makefile `%s' might loop; not remaking it.\n"),
+                          (_("Makefile '%s' might loop; not remaking it.\n"),
                            f->name));
 
 		      if (last == 0)
@@ -1995,7 +1997,7 @@ main (int argc, char **argv, char **envp)
 	  }
       }
 
-      /* Set up `MAKEFLAGS' specially while remaking makefiles.  */
+      /* Set up 'MAKEFLAGS' specially while remaking makefiles.  */
       define_makeflags (1, 1);
 
       rebuilding_makefiles = 1;
@@ -2046,7 +2048,7 @@ main (int argc, char **argv, char **envp)
                         FILE_TIMESTAMP mtime;
                         /* The update failed and this makefile was not
                            from the MAKEFILES variable, so we care.  */
-                        error (NILF, _("Failed to remake makefile `%s'."),
+                        error (NILF, _("Failed to remake makefile '%s'."),
                                d->file->name);
                         mtime = file_mtime_no_search (d->file);
                         any_remade |= (mtime != NONEXISTENT_MTIME
@@ -2063,12 +2065,12 @@ main (int argc, char **argv, char **envp)
                         /* An included makefile.  We don't need
                            to die, but we do want to complain.  */
                         error (NILF,
-                               _("Included makefile `%s' was not found."),
+                               _("Included makefile '%s' was not found."),
                                dep_name (d));
                       else
                         {
                           /* A normal makefile.  We must die later.  */
-                          error (NILF, _("Makefile `%s' was not found"),
+                          error (NILF, _("Makefile '%s' was not found"),
                                  dep_name (d));
                           any_failed = 1;
                         }
@@ -2149,7 +2151,7 @@ main (int argc, char **argv, char **envp)
           /* Reset makeflags in case they were changed.  */
           {
             const char *pv = define_makeflags (1, 1);
-            char *p = alloca (sizeof ("MAKEFLAGS=") + strlen (pv) + 1);
+            char *p = alloca (CSTRLEN ("MAKEFLAGS=") + strlen (pv) + 1);
             sprintf (p, "MAKEFLAGS=%s", pv);
             putenv (allocated_variable_expand (p));
           }
@@ -2250,7 +2252,7 @@ main (int argc, char **argv, char **envp)
         free (makefile_mtimes);
     }
 
-  /* Set up `MAKEFLAGS' again for the normal targets.  */
+  /* Set up 'MAKEFLAGS' again for the normal targets.  */
   define_makeflags (1, 0);
 
   /* Set always_make_flag if -B was given.  */
@@ -2443,7 +2445,7 @@ handle_non_switch_argument (char *arg, int env)
   /* Non-option argument.  It might be a variable definition.  */
   struct variable *v;
   if (arg[0] == '-' && arg[1] == '\0')
-    /* Ignore plain `-' for compatibility.  */
+    /* Ignore plain '-' for compatibility.  */
     return;
   v = try_variable_definition (0, arg, o_command, 0);
   if (v != 0)
@@ -2617,7 +2619,7 @@ decode_switches (int argc, char **argv, int env)
                       else
                         op = cs->long_name;
 
-                      error (NILF, _("the `%s%s' option requires a non-empty string argument"),
+                      error (NILF, _("the '%s%s' option requires a non-empty string argument"),
                              short_option (cs->c) ? "-" : "--", op);
                       bad = 1;
                     }
@@ -2625,8 +2627,7 @@ decode_switches (int argc, char **argv, int env)
 		  sl = *(struct stringlist **) cs->value_ptr;
 		  if (sl == 0)
 		    {
-		      sl = (struct stringlist *)
-			xmalloc (sizeof (struct stringlist));
+		      sl = xmalloc (sizeof (struct stringlist));
 		      sl->max = 5;
 		      sl->idx = 0;
 		      sl->list = xmalloc (5 * sizeof (char *));
@@ -2672,7 +2673,7 @@ decode_switches (int argc, char **argv, int env)
 
 		      if (i < 1 || cp[0] != '\0')
 			{
-                          error (NILF, _("the `-%c' option requires a positive integral argument"),
+                          error (NILF, _("the '-%c' option requires a positive integral argument"),
                                  cs->c);
 			  bad = 1;
 			}
@@ -2812,7 +2813,7 @@ quote_for_env (char *out, const char *in)
 
 /* Define the MAKEFLAGS and MFLAGS variables to reflect the settings of the
    command switches.  Include options with args if ALL is nonzero.
-   Don't include options with the `no_makefile' flag set if MAKEFILE.  */
+   Don't include options with the 'no_makefile' flag set if MAKEFILE.  */
 
 static const char *
 define_makeflags (int all, int makefile)
@@ -2826,7 +2827,7 @@ define_makeflags (int all, int makefile)
   unsigned int words;
   struct variable *v;
 
-  /* We will construct a linked list of `struct flag's describing
+  /* We will construct a linked list of 'struct flag's describing
      all the flags which need to go in MAKEFLAGS.  Then, once we
      know how many there are and their lengths, we can put them all
      together in a string.  */
@@ -2935,7 +2936,7 @@ define_makeflags (int all, int makefile)
 	}
 
   /* Four more for the possible " -- ".  */
-  flagslen += 4 + sizeof (posixref) + sizeof (evalref);
+  flagslen += 4 + CSTRLEN (posixref) + 1 + CSTRLEN (evalref) + 1;
 
 #undef	ADD_FLAG
 
@@ -3018,8 +3019,8 @@ define_makeflags (int all, int makefile)
 	p = flagstring;
       else
         *p++ = ' ';
-      memcpy (p, evalref, sizeof (evalref) - 1);
-      p += sizeof (evalref) - 1;
+      memcpy (p, evalref, CSTRLEN (evalref));
+      p += CSTRLEN (evalref);
     }
 
   if (all && command_variables != 0)
@@ -3047,13 +3048,13 @@ define_makeflags (int all, int makefile)
       /* Copy in the string.  */
       if (posix_pedantic)
 	{
-	  memcpy (p, posixref, sizeof (posixref) - 1);
-	  p += sizeof (posixref) - 1;
+	  memcpy (p, posixref, CSTRLEN (posixref));
+	  p += CSTRLEN (posixref);
 	}
       else
 	{
-	  memcpy (p, ref, sizeof (ref) - 1);
-	  p += sizeof (ref) - 1;
+	  memcpy (p, ref, CSTRLEN (ref));
+	  p += CSTRLEN (ref);
 	}
     }
   else if (p == &flagstring[1])
@@ -3084,7 +3085,7 @@ define_makeflags (int all, int makefile)
   if (! all)
     /* The first time we are called, set MAKEFLAGS to always be exported.
        We should not do this again on the second call, because that is
-       after reading makefiles which might have done `unexport MAKEFLAGS'. */
+       after reading makefiles which might have done 'unexport MAKEFLAGS'. */
     v->export = v_export;
 
   return v->value;
@@ -3114,9 +3115,10 @@ print_version (void)
   /* Print this untranslated.  The coding standards recommend translating the
      (C) to the copyright symbol, but this string is going to change every
      year, and none of the rest of it should be translated (including the
-     word "Copyright", so it hardly seems worth it.  */
+     word "Copyright"), so it hardly seems worth it.  */
 
-  printf ("%sCopyright (C) 2012 Free Software Foundation, Inc.\n", precede);
+  printf ("%sCopyright (C) 1988-2012 Free Software Foundation, Inc.\n",
+          precede);
 
   printf (_("%sLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\
 %sThis is free software: you are free to change and redistribute it.\n\
@@ -3126,7 +3128,7 @@ print_version (void)
   printed_version = 1;
 
   /* Flush stdout so the user doesn't have to wait to see the
-     version information while things are thought about.  */
+     version information while make thinks about things.  */
   fflush (stdout);
 }
 
@@ -3274,7 +3276,7 @@ die (int status)
       if (directory_before_chdir != 0)
         {
           /* If it fails we don't care: shut up GCC.  */
-          int _x;
+          int _x UNUSED;
           _x = chdir (directory_before_chdir);
         }
 
@@ -3313,10 +3315,10 @@ log_working_directory (int entering)
         printf (_("%s: Leaving an unknown directory\n"), program);
     else
       if (entering)
-        printf (_("%s: Entering directory `%s'\n"),
+        printf (_("%s: Entering directory '%s'\n"),
                 program, starting_directory);
       else
-        printf (_("%s: Leaving directory `%s'\n"),
+        printf (_("%s: Leaving directory '%s'\n"),
                 program, starting_directory);
   else
     if (starting_directory == 0)
@@ -3328,10 +3330,10 @@ log_working_directory (int entering)
                 program, makelevel);
     else
       if (entering)
-        printf (_("%s[%u]: Entering directory `%s'\n"),
+        printf (_("%s[%u]: Entering directory '%s'\n"),
                 program, makelevel, starting_directory);
       else
-        printf (_("%s[%u]: Leaving directory `%s'\n"),
+        printf (_("%s[%u]: Leaving directory '%s'\n"),
                 program, makelevel, starting_directory);
 
   /* Flush stdout to be sure this comes before any stderr output.  */

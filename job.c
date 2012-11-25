@@ -1,7 +1,5 @@
 /* Job execution and handling for GNU Make.
-Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
-1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
-2012 Free Software Foundation, Inc.
+Copyright (C) 1988-2012 Free Software Foundation, Inc.
 This file is part of GNU Make.
 
 GNU Make is free software; you can redistribute it and/or modify it under the
@@ -154,7 +152,7 @@ int wait ();
 #  define WIFEXITED(x) (WTERMSIG (x) == 0)
 # endif
 
-#else	/* Have `union wait'.  */
+#else	/* Have 'union wait'.  */
 
 # define WAIT_T union wait
 # ifndef WTERMSIG
@@ -173,7 +171,7 @@ int wait ();
 #  define WIFEXITED(x) (WTERMSIG(x) == 0)
 # endif
 
-#endif	/* Don't have `union wait'.  */
+#endif	/* Don't have 'union wait'.  */
 
 #if !defined(HAVE_UNISTD_H) && !defined(WINDOWS32)
 int dup2 ();
@@ -225,7 +223,7 @@ struct child *children = 0;
 
 unsigned int job_slots_used = 0;
 
-/* Nonzero if the `good' standard input is in use.  */
+/* Nonzero if the 'good' standard input is in use.  */
 
 static int good_stdin_used = 0;
 
@@ -467,7 +465,7 @@ child_error (const struct file *file,
       sprintf (a, "%s:%lu", flocp->filenm, flocp->lineno);
       nm = a;
     }
-  message (0, _("%s: recipe for target `%s' failed"), nm, file->name);
+  message (0, _("%s: recipe for target '%s' failed"), nm, file->name);
 
 #ifdef VMS
   if (!(exit_code & 1))
@@ -518,7 +516,7 @@ child_handler (int sig UNUSED)
 extern int shell_function_pid, shell_function_completed;
 
 /* Reap all dead children, storing the returned status and the new command
-   state (`cs_finished') in the `file' member of the `struct child' for the
+   state ('cs_finished') in the 'file' member of the 'struct child' for the
    dead child, and removing the child from the chain.  In addition, if BLOCK
    nonzero, we block in this function until we've reaped at least one
    complete child, waiting for it to die if necessary.  If ERR is nonzero,
@@ -763,10 +761,10 @@ reap_children (int block, int err)
 #endif /* WINDOWS32 */
 	}
 
-      /* Check if this is the child of the `shell' function.  */
+      /* Check if this is the child of the 'shell' function.  */
       if (!remote && pid == shell_function_pid)
 	{
-	  /* It is.  Leave an indicator for the `shell' function.  */
+	  /* It is.  Leave an indicator for the 'shell' function.  */
 	  if (exit_sig == 0 && exit_code == 127)
 	    shell_function_completed = -1;
 	  else
@@ -1064,7 +1062,7 @@ set_child_handler_action_flags (int set_handler, int set_alarm)
    CHILD is updated to reflect the commands and ID of the child process.
 
    NOTE: On return fatal signals are blocked!  The caller is responsible
-   for calling `unblock_sigs', once the new child is safely on the chain so
+   for calling 'unblock_sigs', once the new child is safely on the chain so
    it can be cleaned up in the event of a fatal signal.  */
 
 static void
@@ -1151,9 +1149,9 @@ start_job_command (struct child *child)
       }
   }
 
-  /* If -q was given, say that updating `failed' if there was any text on the
-     command line, or `succeeded' otherwise.  The exit status of 1 tells the
-     user that -q is saying `something to do'; the exit status for a random
+  /* If -q was given, say that updating 'failed' if there was any text on the
+     command line, or 'succeeded' otherwise.  The exit status of 1 tells the
+     user that -q is saying 'something to do'; the exit status for a random
      error is 2.  */
   if (argv != 0 && question_flag && !(flags & COMMANDS_RECURSE))
     {
@@ -1200,7 +1198,7 @@ start_job_command (struct child *child)
       return;
     }
 
-  /* Print out the command.  If silent, we call `message' with null so it
+  /* Print out the command.  If silent, we call 'message' with null so it
      can log the working directory before the command's own error messages
      appear.  */
 
@@ -1286,8 +1284,8 @@ start_job_command (struct child *child)
 
 #endif /* !WINDOWS32 && !_AMIGA && !__MSDOS__ */
 
-  /* Decide whether to give this child the `good' standard input
-     (one that points to the terminal or whatever), or the `bad' one
+  /* Decide whether to give this child the 'good' standard input
+     (one that points to the terminal or whatever), or the 'bad' one
      that points to the read side of a broken pipe.  */
 
   child->good_stdin = !good_stdin_used;
@@ -1429,25 +1427,25 @@ start_job_command (struct child *child)
     block_sigs ();
     dos_status = 0;
 
-    /* We call `system' to do the job of the SHELL, since stock DOS
-       shell is too dumb.  Our `system' knows how to handle long
+    /* We call 'system' to do the job of the SHELL, since stock DOS
+       shell is too dumb.  Our 'system' knows how to handle long
        command lines even if pipes/redirection is needed; it will only
        call COMMAND.COM when its internal commands are used.  */
     if (execute_by_shell)
       {
 	char *cmdline = argv[0];
-	/* We don't have a way to pass environment to `system',
+	/* We don't have a way to pass environment to 'system',
 	   so we need to save and restore ours, sigh...  */
 	char **parent_environ = environ;
 
 	environ = child->environment;
 
-	/* If we have a *real* shell, tell `system' to call
+	/* If we have a *real* shell, tell 'system' to call
 	   it to do everything for us.  */
 	if (unixy_shell)
 	  {
 	    /* A *real* shell on MSDOS may not support long
-	       command lines the DJGPP way, so we must use `system'.  */
+	       command lines the DJGPP way, so we must use 'system'.  */
 	    cmdline = argv[2];	/* get past "shell -c" */
 	  }
 
@@ -1547,7 +1545,7 @@ start_job_command (struct child *child)
 
 /* Try to start a child running.
    Returns nonzero if the child was started (and maybe finished), or zero if
-   the load was too high and the child was put on the `waiting_jobs' chain.  */
+   the load was too high and the child was put on the 'waiting_jobs' chain.  */
 
 static int
 start_waiting_job (struct child *c)
@@ -1611,7 +1609,7 @@ start_waiting_job (struct child *c)
   return 1;
 }
 
-/* Create a `struct child' for FILE and start its commands running.  */
+/* Create a 'struct child' for FILE and start its commands running.  */
 
 void
 new_job (struct file *file)
@@ -1734,7 +1732,7 @@ new_job (struct file *file)
     }
 
   /* Start the command sequence, record it in a new
-     `struct child', and add that to the chain.  */
+     'struct child', and add that to the chain.  */
 
   c = xcalloc (sizeof (struct child));
   c->file = file;
@@ -1893,9 +1891,9 @@ new_job (struct file *file)
         }
 
       if (newer[0] == '\0')
-        message (0, _("%s: target `%s' does not exist"), nm, c->file->name);
+        message (0, _("%s: target '%s' does not exist"), nm, c->file->name);
       else
-        message (0, _("%s: update target `%s' due to: %s"), nm,
+        message (0, _("%s: update target '%s' due to: %s"), nm,
                  c->file->name, newer);
 
       free (newer);
@@ -1908,7 +1906,7 @@ new_job (struct file *file)
 
   if (job_slots == 1 || not_parallel)
     /* Since there is only one job slot, make things run linearly.
-       Wait for the child to die, setting the state to `cs_finished'.  */
+       Wait for the child to die, setting the state to 'cs_finished'.  */
     while (file->command_state == cs_running)
       reap_children (1, 0);
 
@@ -2368,7 +2366,7 @@ void clean_tmp (void)
 #ifndef VMS
 /* Figure out the argument list necessary to run LINE as a command.  Try to
    avoid using a shell.  This routine handles only ' quoting, and " quoting
-   when no backslash, $ or ` characters are seen in the quotes.  Starting
+   when no backslash, $ or ' characters are seen in the quotes.  Starting
    quotes may be escaped with a backslash.  If any of the characters in
    sh_chars[] is seen, or any of the builtin commands listed in sh_cmds[]
    is the first word of a line, the shell is used.
@@ -2391,22 +2389,22 @@ construct_command_argv_internal (char *line, char **restp, char *shell,
 {
 #ifdef __MSDOS__
   /* MSDOS supports both the stock DOS shell and ports of Unixy shells.
-     We call `system' for anything that requires ``slow'' processing,
+     We call 'system' for anything that requires ''slow'' processing,
      because DOS shells are too dumb.  When $SHELL points to a real
-     (unix-style) shell, `system' just calls it to do everything.  When
-     $SHELL points to a DOS shell, `system' does most of the work
+     (unix-style) shell, 'system' just calls it to do everything.  When
+     $SHELL points to a DOS shell, 'system' does most of the work
      internally, calling the shell only for its internal commands.
      However, it looks on the $PATH first, so you can e.g. have an
-     external command named `mkdir'.
+     external command named 'mkdir'.
 
-     Since we call `system', certain characters and commands below are
+     Since we call 'system', certain characters and commands below are
      actually not specific to COMMAND.COM, but to the DJGPP implementation
-     of `system'.  In particular:
+     of 'system'.  In particular:
 
        The shell wildcard characters are in DOS_CHARS because they will
-       not be expanded if we call the child via `spawnXX'.
+       not be expanded if we call the child via 'spawnXX'.
 
-       The `;' is in DOS_CHARS, because our `system' knows how to run
+       The ';' is in DOS_CHARS, because our 'system' knows how to run
        multiple commands on a single line.
 
        DOS_CHARS also include characters special to 4DOS/NDOS, so we
@@ -2562,7 +2560,7 @@ construct_command_argv_internal (char *line, char **restp, char *shell,
     {
       extern int _is_unixy_shell (const char *_path);
 
-      DB (DB_BASIC, (_("$SHELL changed (was `%s', now `%s')\n"),
+      DB (DB_BASIC, (_("$SHELL changed (was '%s', now '%s')\n"),
                      default_shell, shell));
       unixy_shell = _is_unixy_shell (shell);
       /* we must allocate a copy of shell: construct_command_argv() will free
@@ -2671,7 +2669,7 @@ construct_command_argv_internal (char *line, char **restp, char *shell,
 	goto slow;
 #ifdef  __MSDOS__
       else if (*p == '.' && p[1] == '.' && p[2] == '.' && p[3] != '.')
-	/* `...' is a wildcard in DJGPP.  */
+	/* '...' is a wildcard in DJGPP.  */
 	goto slow;
 #endif
       else
@@ -2760,10 +2758,10 @@ construct_command_argv_internal (char *line, char **restp, char *shell,
 	    last_argument_was_empty = 0;
 
 	    /* Update SEEN_NONEQUALS, which tells us if every word
-	       heretofore has contained an `='.  */
+	       heretofore has contained an '='.  */
 	    seen_nonequals |= ! word_has_equals;
 	    if (word_has_equals && ! seen_nonequals)
-	      /* An `=' in a word before the first
+	      /* An '=' in a word before the first
 		 word without one is magical.  */
 	      goto slow;
 	    word_has_equals = 0; /* Prepare for the next word.  */
@@ -2838,7 +2836,7 @@ construct_command_argv_internal (char *line, char **restp, char *shell,
     }
 
 #ifdef __MSDOS__
-  execute_by_shell = 1;	/* actually, call `system' if shell isn't unixy */
+  execute_by_shell = 1;	/* actually, call 'system' if shell isn't unixy */
 #endif
 
 #ifdef _AMIGA
@@ -2960,16 +2958,34 @@ construct_command_argv_internal (char *line, char **restp, char *shell,
             *t = '\0';
           }
 
-	new_argv = xmalloc (4 * sizeof (char *));
-	new_argv[0] = xstrdup(shell);
-	new_argv[1] = xstrdup(shellflags ? shellflags : "");
-	new_argv[2] = line;
-	new_argv[3] = NULL;
+        /* Create an argv list for the shell command line.  */
+        {
+          int n = 0;
+
+          new_argv = xmalloc ((4 + sflags_len/2) * sizeof (char *));
+          new_argv[n++] = xstrdup (shell);
+
+          /* Chop up the shellflags (if any) and assign them.  */
+          if (! shellflags)
+            new_argv[n++] = xstrdup ("");
+          else
+            {
+              const char *s = shellflags;
+              char *t;
+              unsigned int len;
+              while ((t = find_next_token (&s, &len)) != 0)
+                new_argv[n++] = xstrndup (t, len);
+            }
+
+          /* Set the command to invoke.  */
+          new_argv[n++] = line;
+          new_argv[n++] = NULL;
+        }
 	return new_argv;
       }
 
-    new_line = alloca ((shell_len*2) + 1 + sflags_len + 1
-                             + (line_len*2) + 1);
+    new_line = xmalloc ((shell_len*2) + 1 + sflags_len + 1
+                        + (line_len*2) + 1);
     ap = new_line;
     /* Copy SHELL, escaping any characters special to the shell.  If
        we don't escape them, construct_command_argv_internal will
@@ -3027,7 +3043,7 @@ construct_command_argv_internal (char *line, char **restp, char *shell,
 #ifdef __MSDOS__
         else if (unixy_shell && strneq (p, "...", 3))
           {
-            /* The case of `...' wildcard again.  */
+            /* The case of '...' wildcard again.  */
             strcpy (ap, "\\.\\.\\");
             ap += 5;
             p  += 2;
@@ -3036,8 +3052,11 @@ construct_command_argv_internal (char *line, char **restp, char *shell,
 	*ap++ = *p;
       }
     if (ap == new_line + shell_len + sflags_len + 2)
-      /* Line was empty.  */
-      return 0;
+      {
+        /* Line was empty.  */
+        free (new_line);
+        return 0;
+      }
     *ap = '\0';
 
 #ifdef WINDOWS32
@@ -3178,6 +3197,8 @@ construct_command_argv_internal (char *line, char **restp, char *shell,
       fatal (NILF, _("%s (line %d) Bad shell context (!unixy && !batch_mode_shell)\n"),
             __FILE__, __LINE__);
 #endif
+
+    free (new_line);
   }
 #endif	/* ! AMIGA */
 
@@ -3187,7 +3208,7 @@ construct_command_argv_internal (char *line, char **restp, char *shell,
 
 /* Figure out the argument list necessary to run LINE as a command.  Try to
    avoid using a shell.  This routine handles only ' quoting, and " quoting
-   when no backslash, $ or ` characters are seen in the quotes.  Starting
+   when no backslash, $ or ' characters are seen in the quotes.  Starting
    quotes may be escaped with a backslash.  If any of the characters in
    sh_chars[] is seen, or any of the builtin commands listed in sh_cmds[]
    is the first word of a line, the shell is used.

@@ -1,6 +1,6 @@
 GNU make NEWS                                               -*-indented-text-*-
   History of user-visible changes.
-  15 January 2012
+  05 March 2012
 
 See the end of this file for copyrights and conditions.
 
@@ -9,18 +9,19 @@ manual, which is contained in this distribution as the file doc/make.texi.
 See the README file and the GNU make manual for instructions for
 reporting bugs.
 
-Version 3.82.90
+Version 3.99.90
 
 A complete list of bugs fixed in this version is available here:
 
 http://sv.gnu.org/bugs/index.php?group=make&report_id=111&fix_release_id=101&set=custom
 
 * WARNING: Backward-incompatibility!
-  This version of make adheres to the POSIX backslash/newline handling,
-  introducing the following differences:
-    * Each backslash/newline in a variable value is replaced with a space;
-      multiple consecutive backslash/newlines do not condense into one space.
-    * In recipes, a recipe prefix following a backslash-newlines is removed.
+  If .POSIX is specified, then make adheres to the POSIX backslash/newline
+  handling requirements, which introduces the following changes to the
+  standard backslash/newline handling in non-recipe lines:
+  * Any trailing space before the backslash is preserved
+  * Each backslash/newline (plus subsequent whitespace) is converted to a
+    single space
 
 * New command line option: --trace enables tracing of targets.  When enabled
   the recipe to be invoked is printed even if it would otherwise be suppressed
@@ -48,6 +49,11 @@ http://sv.gnu.org/bugs/index.php?group=make&report_id=111&fix_release_id=101&set
   This version of GNU make can be compiled with GNU Guile integration.
   GNU Guile serves as an embedded extension language for make.
   See the "Guile Function" section in the GNU Make manual for details.
+
+* New feature: Loadable objects
+  This version of GNU make contains a "technology preview": the ability to
+  load dynamic objects into the make runtime.  These objects can be created by
+  the user and can add extended functionality, usable by makefiles.
 
 * New function: $(file ...) writes to a file.
 
@@ -1155,9 +1161,7 @@ Version 3.05
 (Changes from versions 1 through 3.05 were never recorded.  Sorry.)
 
 -------------------------------------------------------------------------------
-Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
-1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
-2012 Free Software Foundation, Inc.
+Copyright (C) 1988-2012 Free Software Foundation, Inc.
 This file is part of GNU Make.
 
 GNU Make is free software; you can redistribute it and/or modify it under the

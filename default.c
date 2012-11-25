@@ -1,7 +1,5 @@
 /* Data base of default implicit rules for GNU Make.
-Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
-1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
-2012 Free Software Foundation, Inc.
+Copyright (C) 1988-2012 Free Software Foundation, Inc.
 This file is part of GNU Make.
 
 GNU Make is free software; you can redistribute it and/or modify it under the
@@ -32,8 +30,8 @@ this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 
 /* This is the default list of suffixes for suffix rules.
-   `.s' must come last, so that a `.o' file will be made from
-   a `.c' or `.p' or ... file rather than from a .s file.  */
+   '.s' must come last, so that a '.o' file will be made from
+   a '.c' or '.p' or ... file rather than from a .s file.  */
 
 static char default_suffixes[]
 #ifdef VMS
@@ -56,8 +54,8 @@ static struct pspec default_pattern_rules[] =
         "$(AR) $(ARFLAGS) $@ $<" },
 
     /* The X.out rules are only in BSD's default set because
-       BSD Make has no null-suffix rules, so `foo.out' and
-       `foo' are the same thing.  */
+       BSD Make has no null-suffix rules, so 'foo.out' and
+       'foo' are the same thing.  */
 #ifdef VMS
     { "%.exe", "%",
         "copy $< $@" },
@@ -293,13 +291,13 @@ static char *default_suffix_rules[] =
     "$(TEXI2DVI) $(TEXI2DVI_FLAGS) $<",
 
     ".w.c",
-    "$(CTANGLE) $< - $@",       /* The `-' says there is no `.ch' file.  */
+    "$(CTANGLE) $< - $@",       /* The '-' says there is no '.ch' file.  */
 
     ".web.p",
     "$(TANGLE) $<",
 
     ".w.tex",
-    "$(CWEAVE) $< - $@",        /* The `-' says there is no `.ch' file.  */
+    "$(CWEAVE) $< - $@",        /* The '-' says there is no '.ch' file.  */
 
     ".web.tex",
     "$(WEAVE) $<",
@@ -516,14 +514,14 @@ static const char *default_variables[] =
     "SCCS_OUTPUT_OPTION", "-G$@",
 #endif
 
-#ifdef _AMIGA
+#if defined(_AMIGA)
     ".LIBPATTERNS", "%.lib",
-#else
-#ifdef __MSDOS__
+#elif defined(__MSDOS__)
     ".LIBPATTERNS", "lib%.a $(DJDIR)/lib/lib%.a",
+#elif defined(__APPLE__)
+    ".LIBPATTERNS", "lib%.dylib lib%.a",
 #else
     ".LIBPATTERNS", "lib%.so lib%.a",
-#endif
 #endif
 
 #endif /* !VMS */

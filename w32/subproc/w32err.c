@@ -1,6 +1,5 @@
 /* Error handling for Windows
-Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006,
-2007, 2008, 2009, 2010, 2011, 2012 Free Software Foundation, Inc.
+Copyright (C) 1996-2012 Free Software Foundation, Inc.
 This file is part of GNU Make.
 
 GNU Make is free software; you can redistribute it and/or modify it under the
@@ -31,7 +30,7 @@ this program.  If not, see <http://www.gnu.org/licenses/>.  */
 const char *
 map_windows32_error_to_string (DWORD ercode) {
 /*
- * We used to have an MSVC-specific `__declspec (thread)' qualifier
+ * We used to have an MSVC-specific '__declspec (thread)' qualifier
  * here, with the following comment:
  *
  * __declspec (thread) necessary if you will use multiple threads on MSVC
@@ -43,7 +42,7 @@ map_windows32_error_to_string (DWORD ercode) {
  * never used, and are now #ifdef'ed away.  Until we need more than
  * one thread, we have no problems with the following buffer being
  * static.  (If and when we do need it to be in thread-local storage,
- * the corresponding GCC qualifier is `__thread'.)
+ * the corresponding GCC qualifier is '__thread'.)
  */
     static char szMessageBuffer[128];
 	/* Fill message buffer with a default message in

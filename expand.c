@@ -1,7 +1,5 @@
 /* Variable expansion functions for GNU Make.
-Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
-1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
-2012 Free Software Foundation, Inc.
+Copyright (C) 1988-2012 Free Software Foundation, Inc.
 This file is part of GNU Make.
 
 GNU Make is free software; you can redistribute it and/or modify it under the
@@ -124,7 +122,7 @@ recursively_expand_for_file (struct variable *v, struct file *file)
       if (!v->exp_count)
         /* Expanding V causes infinite recursion.  Lose.  */
         fatal (*expanding_var,
-               _("Recursive variable `%s' references itself (eventually)"),
+               _("Recursive variable '%s' references itself (eventually)"),
                v->name);
       --v->exp_count;
     }
@@ -187,7 +185,7 @@ reference_variable (char *o, const char *name, unsigned int length)
    LENGTH bytes of STRING are actually scanned.  If LENGTH is -1, scan until
    a null byte is found.
 
-   Write the results to LINE, which must point into `variable_buffer'.  If
+   Write the results to LINE, which must point into 'variable_buffer'.  If
    LINE is NULL, start at the beginning of the buffer.
    Return a pointer to LINE, or to the beginning of the buffer if LINE is
    NULL.
@@ -284,7 +282,7 @@ variable_expand_string (char *line, const char *string, long length)
 		  }
 		/* If COUNT is >= 0, there were unmatched opening parens
 		   or braces, so we go to the simple case of a variable name
-		   such as `$($(a)'.  */
+		   such as '$($(a)'.  */
 		if (count < 0)
 		  {
 		    abeg = expand_argument (beg, p); /* Expand the name.  */
@@ -413,7 +411,7 @@ variable_expand_string (char *line, const char *string, long length)
 }
 
 /* Scan LINE for variable references and expansion-function calls.
-   Build in `variable_buffer' the result of expanding the references and calls.
+   Build in 'variable_buffer' the result of expanding the references and calls.
    Return the address of the resulting string, which is null-terminated
    and is valid only until the next time this function is called.  */
 
@@ -426,7 +424,7 @@ variable_expand (const char *line)
 /* Expand an argument for an expansion function.
    The text starting at STR and ending at END is variable-expanded
    into a null-terminated string that is returned as the value.
-   This is done without clobbering `variable_buffer' or the current
+   This is done without clobbering 'variable_buffer' or the current
    variable-expansion that is in progress.  */
 
 char *
@@ -497,6 +495,8 @@ variable_append (const char *name, unsigned int length,
 {
   const struct variable *v;
   char *buf = 0;
+  /* If this set is local and the next is not a parent, then next is local.  */
+  int nextlocal = local && set->next_is_parent == 0;
 
   /* If there's nothing left to check, return the empty buffer.  */
   if (!set)
@@ -507,12 +507,12 @@ variable_append (const char *name, unsigned int length,
 
   /* If there isn't one, or this one is private, try the set above us.  */
   if (!v || (!local && v->private_var))
-    return variable_append (name, length, set->next, 0);
+    return variable_append (name, length, set->next, nextlocal);
 
   /* If this variable type is append, first get any upper values.
      If not, initialize the buffer.  */
   if (v->append)
-    buf = variable_append (name, length, set->next, 0);
+    buf = variable_append (name, length, set->next, nextlocal);
   else
     buf = initialize_variable_output ();
 

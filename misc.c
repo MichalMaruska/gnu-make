@@ -1,7 +1,5 @@
 /* Miscellaneous generic support functions for GNU Make.
-Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
-1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
-2012 Free Software Foundation, Inc.
+Copyright (C) 1988-2012 Free Software Foundation, Inc.
 This file is part of GNU Make.
 
 GNU Make is free software; you can redistribute it and/or modify it under the
@@ -112,12 +110,17 @@ collapse_continuations (char *line)
       /* Skip the newline.  */
       ++in;
 
-      /* If the newline is escaped, discard following whitespace leaving just
-	 one space.  POSIX requires that each backslash/newline/following
-	 whitespace sequence be reduced to a single space.  */
       if (backslash)
 	{
+          /* Backslash/newline handling:
+             In traditional GNU make all trailing whitespace, consecutive
+             backslash/newlines, and any leading whitespace on the next line
+             is reduced to a single space.
+             In POSIX, each backslash/newline and is replaced by a space.  */
 	  in = next_token (in);
+          if (! posix_pedantic)
+            while (out > line && isblank ((unsigned char)out[-1]))
+              --out;
 	  *out++ = ' ';
 	}
       else
@@ -530,7 +533,7 @@ find_next_token (const char **ptr, unsigned int *lengthptr)
 }
 
 
-/* Copy a chain of `struct dep'.  For 2nd expansion deps, dup the name.  */
+/* Copy a chain of 'struct dep'.  For 2nd expansion deps, dup the name.  */
 
 struct dep *
 copy_dep_chain (const struct dep *d)
@@ -936,7 +939,7 @@ get_path_max (void)
    the failure.  That's what the ferror test is checking below.
 
    It's important to detect such failures and exit nonzero because many
-   tools (most notably `make' and other build-management systems) depend
+   tools (most notably 'make' and other build-management systems) depend
    on being able to detect failure in other tools via their exit status.  */
 
 void

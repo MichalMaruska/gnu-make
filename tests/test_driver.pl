@@ -5,9 +5,7 @@
 # Written 91-12-02 through 92-01-01 by Stephen McGee.
 # Modified 92-02-11 through 92-02-22 by Chris Arthur to further generalize.
 #
-# Copyright (C) 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
-# 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Free
-# Software Foundation, Inc.
+# Copyright (C) 1991-2012 Free Software Foundation, Inc.
 # This file is part of GNU Make.
 #
 # GNU Make is free software; you can redistribute it and/or modify it under
@@ -30,7 +28,7 @@
 # this routine controls the whole mess; each test suite sets up a few
 # variables and then calls &toplevel, which does all the real work.
 
-# $Id: test_driver.pl,v 1.32 2012/01/29 18:12:22 psmith Exp $
+# $Id: test_driver.pl,v 1.34 2012/03/05 14:10:47 psmith Exp $
 
 
 # The number of test categories we've run
@@ -132,7 +130,7 @@ sub toplevel
 
   &parse_command_line (@ARGV);
 
-  print "OS name = `$osname'\n" if $debug;
+  print "OS name = '$osname'\n" if $debug;
 
   $workpath = "$cwdslash$workdir";
   $scriptpath = "$cwdslash$scriptdir";

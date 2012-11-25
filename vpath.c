@@ -1,7 +1,5 @@
 /* Implementation of pattern-matching file search paths for GNU Make.
-Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
-1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
-2012 Free Software Foundation, Inc.
+Copyright (C) 1988-2012 Free Software Foundation, Inc.
 This file is part of GNU Make.
 
 GNU Make is free software; you can redistribute it and/or modify it under the
@@ -30,7 +28,7 @@ struct vpath
   {
     struct vpath *next;	/* Pointer to next struct in the linked list.  */
     const char *pattern;/* The pattern to match.  */
-    const char *percent;/* Pointer into `pattern' where the `%' is.  */
+    const char *percent;/* Pointer into 'pattern' where the '%' is.  */
     unsigned int patlen;/* Length of the pattern.  */
     const char **searchpath; /* Null-terminated list of directories.  */
     unsigned int maxlen;/* Maximum length of any entry in the list.  */
@@ -90,7 +88,7 @@ build_vpath_lists ()
       struct vpath *save_vpaths = vpaths;
       char gp[] = "%";
 
-      /* Empty `vpaths' so the new one will have no next, and `vpaths'
+      /* Empty 'vpaths' so the new one will have no next, and 'vpaths'
 	 will still be nil if P contains no existing directories.  */
       vpaths = 0;
 
@@ -123,7 +121,7 @@ build_vpath_lists ()
       struct vpath *save_vpaths = vpaths;
       char gp[] = "%";
 
-      /* Empty `vpaths' so the new one will have no next, and `vpaths'
+      /* Empty 'vpaths' so the new one will have no next, and 'vpaths'
 	 will still be nil if P contains no existing directories.  */
       vpaths = 0;
 
@@ -600,18 +598,18 @@ print_vpath_data_base (void)
     }
 
   if (vpaths == 0)
-    puts (_("# No `vpath' search paths."));
+    puts (_("# No 'vpath' search paths."));
   else
-    printf (_("\n# %u `vpath' search paths.\n"), nvpaths);
+    printf (_("\n# %u 'vpath' search paths.\n"), nvpaths);
 
   if (general_vpath == 0)
-    puts (_("\n# No general (`VPATH' variable) search path."));
+    puts (_("\n# No general ('VPATH' variable) search path."));
   else
     {
       const char **path = general_vpath->searchpath;
       unsigned int i;
 
-      fputs (_("\n# General (`VPATH' variable) search path:\n# "), stdout);
+      fputs (_("\n# General ('VPATH' variable) search path:\n# "), stdout);
 
       for (i = 0; path[i] != 0; ++i)
 	printf ("%s%c", path[i],

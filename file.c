@@ -1,7 +1,5 @@
 /* Target file management for GNU Make.
-Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
-1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
-2012 Free Software Foundation, Inc.
+Copyright (C) 1988-2012 Free Software Foundation, Inc.
 This file is part of GNU Make.
 
 GNU Make is free software; you can redistribute it and/or modify it under the
@@ -202,7 +200,7 @@ enter_file (const char *name)
 }
 
 /* Rehash FILE to NAME.  This is not as simple as resetting
-   the `hname' member, since it must be put in a new hash bucket,
+   the 'hname' member, since it must be put in a new hash bucket,
    and possibly merged with an existing file called NAME.  */
 
 void
@@ -264,18 +262,18 @@ rehash_file (struct file *from_file, const char *to_hname)
              but give a message to let the user know what's going on.  */
           if (to_file->cmds->fileinfo.filenm != 0)
             error (&from_file->cmds->fileinfo,
-                   _("Recipe was specified for file `%s' at %s:%lu,"),
+                   _("Recipe was specified for file '%s' at %s:%lu,"),
                    from_file->name, to_file->cmds->fileinfo.filenm,
                    to_file->cmds->fileinfo.lineno);
           else
             error (&from_file->cmds->fileinfo,
-                   _("Recipe for file `%s' was found by implicit rule search,"),
+                   _("Recipe for file '%s' was found by implicit rule search,"),
                    from_file->name);
           error (&from_file->cmds->fileinfo,
-                 _("but `%s' is now considered the same file as `%s'."),
+                 _("but '%s' is now considered the same file as '%s'."),
                  from_file->name, to_hname);
           error (&from_file->cmds->fileinfo,
-                 _("Recipe for `%s' will be ignored in favor of the one for `%s'."),
+                 _("Recipe for '%s' will be ignored in favor of the one for '%s'."),
                  to_hname, from_file->name);
         }
     }
@@ -295,12 +293,12 @@ rehash_file (struct file *from_file, const char *to_hname)
   merge_variable_set_lists (&to_file->variables, from_file->variables);
 
   if (to_file->double_colon && from_file->is_target && !from_file->double_colon)
-    fatal (NILF, _("can't rename single-colon `%s' to double-colon `%s'"),
+    fatal (NILF, _("can't rename single-colon '%s' to double-colon '%s'"),
            from_file->name, to_hname);
   if (!to_file->double_colon  && from_file->double_colon)
     {
       if (to_file->is_target)
-        fatal (NILF, _("can't rename double-colon `%s' to single-colon `%s'"),
+        fatal (NILF, _("can't rename double-colon '%s' to single-colon '%s'"),
                from_file->name, to_hname);
       else
         to_file->double_colon = from_file->double_colon;
@@ -327,7 +325,7 @@ rehash_file (struct file *from_file, const char *to_hname)
 }
 
 /* Rename FILE to NAME.  This is not as simple as resetting
-   the `name' member, since it must be put in a new hash bucket,
+   the 'name' member, since it must be put in a new hash bucket,
    and possibly merged with an existing file called NAME.  */
 
 void
@@ -389,7 +387,7 @@ remove_intermediates (int sig)
 	    if (!f->dontcare)
 	      {
 		if (sig)
-		  error (NILF, _("*** Deleting intermediate file `%s'"), f->name);
+		  error (NILF, _("*** Deleting intermediate file '%s'"), f->name);
 		else
 		  {
 		    if (! doneany)
@@ -575,12 +573,11 @@ expand_deps (struct file *f)
          "$*" so they'll expand properly.  */
       if (d->staticpattern)
         {
-          char *o;
-          d->name = o = variable_expand ("");
+          char *o = variable_expand ("");
           o = subst_expand (o, name, "%", "$*", 1, 2, 0);
           *o = '\0';
           free (name);
-          d->name = name = xstrdup (d->name);
+          d->name = name = xstrdup (variable_buffer);
           d->staticpattern = 0;
         }
 
@@ -637,8 +634,8 @@ reset_updating (const void *item)
   f->updating = 0;
 }
 
-/* For each dependency of each file, make the `struct dep' point
-   at the appropriate `struct file' (which may have to be created).
+/* For each dependency of each file, make the 'struct dep' point
+   at the appropriate 'struct file' (which may have to be created).
 
    Also mark the files depended on by .PRECIOUS, .PHONY, .SILENT,
    and various other special targets.  */
@@ -772,7 +769,7 @@ snap_deps (void)
 #endif
 }
 
-/* Set the `command_state' member of FILE and all its `also_make's.  */
+/* Set the 'command_state' member of FILE and all its 'also_make's.  */
 
 void
 set_command_state (struct file *file, enum cmd_state state)
@@ -951,7 +948,7 @@ print_file (const void *item)
         ? _("#  Implicit rule search has been done.")
         : _("#  Implicit rule search has not been done."));
   if (f->stem != 0)
-    printf (_("#  Implicit/static pattern stem: `%s'\n"), f->stem);
+    printf (_("#  Implicit/static pattern stem: '%s'\n"), f->stem);
   if (f->intermediate)
     puts (_("#  File is an intermediate prerequisite."));
   if (f->also_make != 0)
@@ -1001,14 +998,14 @@ print_file (const void *item)
 	  puts (_("#  Failed to be updated."));
 	  break;
 	default:
-	  puts (_("#  Invalid value in `update_status' member!"));
+	  puts (_("#  Invalid value in 'update_status' member!"));
 	  fflush (stdout);
 	  fflush (stderr);
 	  abort ();
 	}
       break;
     default:
-      puts (_("#  Invalid value in `command_state' member!"));
+      puts (_("#  Invalid value in 'command_state' member!"));
       fflush (stdout);
       fflush (stderr);
       abort ();

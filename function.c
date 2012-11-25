@@ -1,7 +1,5 @@
 /* Builtin function expansion for GNU Make.
-Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
-1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
-2012 Free Software Foundation, Inc.
+Copyright (C) 1988-2012 Free Software Foundation, Inc.
 This file is part of GNU Make.
 
 GNU Make is free software; you can redistribute it and/or modify it under the
@@ -356,7 +354,7 @@ string_glob (char *line)
   unsigned int idx;
 
   chain = PARSE_FILE_SEQ (&line, struct nameseq, '\0', NULL,
-                          /* We do not want parse_file_seq to strip `./'s.
+                          /* We do not want parse_file_seq to strip './'s.
                              That would break examples like:
                              $(patsubst ./%.c,obj/%.o,$(wildcard ./?*.c)).  */
                           PARSEFS_NOSTRIP|PARSEFS_NOCACHE|PARSEFS_EXISTS);
@@ -525,7 +523,7 @@ func_notdir_suffix (char *o, char **argv, const char *funcname)
   int doneany =0;
   unsigned int len=0;
 
-  int is_suffix = streq (funcname, "suffix");
+  int is_suffix = funcname[0] == 's';
   int is_notdir = !is_suffix;
   while ((p2 = find_next_token (&list_iterator, &len)) != 0)
     {
@@ -549,7 +547,7 @@ func_notdir_suffix (char *o, char **argv, const char *funcname)
 	}
 #ifdef HAVE_DOS_PATHS
       /* Handle the case of "d:foo/bar".  */
-      else if (streq (funcname, "notdir") && p2[0] && p2[1] == ':')
+      else if (is_notdir && p2[0] && p2[1] == ':')
 	{
 	  p = p2 + 2;
 	  o = variable_buffer_output (o, p, len - (p - p2));
@@ -579,11 +577,11 @@ func_basename_dir (char *o, char **argv, const char *funcname)
   /* Expand the argument.  */
   const char *p3 = argv[0];
   const char *p2;
-  int doneany=0;
-  unsigned int len=0;
+  int doneany = 0;
+  unsigned int len = 0;
 
-  int is_basename= streq (funcname, "basename");
-  int is_dir= !is_basename;
+  int is_basename = funcname[0] == 'b';
+  int is_dir = !is_basename;
 
   while ((p2 = find_next_token (&p3, &len)) != 0)
     {
@@ -634,7 +632,7 @@ func_addsuffix_addprefix (char *o, char **argv, const char *funcname)
 {
   int fixlen = strlen (argv[0]);
   const char *list_iterator = argv[1];
-  int is_addprefix = streq (funcname, "addprefix");
+  int is_addprefix = funcname[3] == 'p';
   int is_addsuffix = !is_addprefix;
 
   int doneany = 0;
@@ -755,12 +753,12 @@ func_word (char *o, char **argv, const char *funcname UNUSED)
   int i;
 
   /* Check the first argument.  */
-  check_numeric (argv[0], _("non-numeric first argument to `word' function"));
+  check_numeric (argv[0], _("non-numeric first argument to 'word' function"));
   i = atoi (argv[0]);
 
   if (i == 0)
     fatal (*expanding_var,
-           _("first argument to `word' function must be greater than 0"));
+           _("first argument to 'word' function must be greater than 0"));
 
   end_p = argv[1];
   while ((p = find_next_token (&end_p, 0)) != 0)
@@ -780,14 +778,14 @@ func_wordlist (char *o, char **argv, const char *funcname UNUSED)
 
   /* Check the arguments.  */
   check_numeric (argv[0],
-		 _("non-numeric first argument to `wordlist' function"));
+		 _("non-numeric first argument to 'wordlist' function"));
   check_numeric (argv[1],
-		 _("non-numeric second argument to `wordlist' function"));
+		 _("non-numeric second argument to 'wordlist' function"));
 
   start = atoi (argv[0]);
   if (start < 1)
     fatal (*expanding_var,
-           "invalid first argument to `wordlist' function: `%d'", start);
+           "invalid first argument to 'wordlist' function: '%d'", start);
 
   count = atoi (argv[1]) - start + 1;
 
@@ -905,7 +903,6 @@ struct a_pattern
   char *str;
   char *percent;
   int length;
-  int save_c;
 };
 
 static char *
@@ -919,7 +916,7 @@ func_filter_filterout (char *o, char **argv, const char *funcname)
   struct a_pattern *pp;
 
   struct hash_table a_word_table;
-  int is_filter = streq (funcname, "filter");
+  int is_filter = funcname[CSTRLEN ("filter")] == '\0';
   const char *pat_iterator = argv[0];
   const char *word_iterator = argv[1];
   int literals = 0;
@@ -928,7 +925,9 @@ func_filter_filterout (char *o, char **argv, const char *funcname)
   char *p;
   unsigned int len;
 
-  /* Chop ARGV[0] up into patterns to match against the words.  */
+  /* Chop ARGV[0] up into patterns to match against the words.
+     We don't need to preserve it because our caller frees all the
+     argument memory anyway.  */
 
   pattail = &pathead;
   while ((p = find_next_token (&pat_iterator, &len)) != 0)
@@ -942,12 +941,13 @@ func_filter_filterout (char *o, char **argv, const char *funcname)
 	++pat_iterator;
 
       pat->str = p;
-      pat->length = len;
-      pat->save_c = p[len];
       p[len] = '\0';
       pat->percent = find_percent (p);
       if (pat->percent == 0)
 	literals++;
+
+      /* find_percent() might shorten the string so LEN is wrong.  */
+      pat->length = strlen (pat->str);
     }
   *pattail = 0;
 
@@ -1028,9 +1028,6 @@ func_filter_filterout (char *o, char **argv, const char *funcname)
 	/* Kill the last space.  */
 	--o;
     }
-
-  for (pp = pathead; pp != 0; pp = pp->next)
-    pp->str[pp->length] = pp->save_c;
 
   if (hashing)
     hash_free (&a_word_table, 0);
@@ -1510,7 +1507,7 @@ windows32_openpipe (int *pipedes, pid_t *pid_p, char **command_argv, char **envp
 
   /* make sure that CreateProcess() has Path it needs */
   sync_Path_environment();
-  /* `sync_Path_environment' may realloc `environ', so take note of
+  /* 'sync_Path_environment' may realloc 'environ', so take note of
      the new value.  */
   envp = environ;
 
@@ -1553,7 +1550,7 @@ FILE *
 msdos_openpipe (int* pipedes, int *pidp, char *text)
 {
   FILE *fpipe=0;
-  /* MSDOS can't fork, but it has `popen'.  */
+  /* MSDOS can't fork, but it has 'popen'.  */
   struct variable *sh = lookup_variable ("SHELL", 5);
   int e;
   extern int dos_command_running, dos_status;
@@ -1657,7 +1654,7 @@ func_shell_base (char *o, char **argv, int trim_newlines)
     }
 #endif
 
-  /* Using a target environment for `shell' loses in cases like:
+  /* Using a target environment for 'shell' loses in cases like:
      export var = $(shell echo foobie)
      because target_environment hits a loop trying to expand $(var)
      to put it in the environment.  This is even more confusing when
@@ -1741,7 +1738,7 @@ func_shell_base (char *o, char **argv, int trim_newlines)
 
       /* Close the write side of the pipe.  We test for -1, since
 	 pipedes[1] is -1 on MS-Windows, and some versions of MS
-	 libraries barf when `close' is called with -1.  */
+	 libraries barf when 'close' is called with -1.  */
       if (pipedes[1] >= 0)
 	close (pipedes[1]);
 #endif
@@ -1914,7 +1911,7 @@ func_shell (char *o, char **argv, const char *funcname UNUSED)
   equality. Return is string-boolean, ie, the empty string is false.
  */
 static char *
-func_eq (char *o, char **argv, char *funcname)
+func_eq (char *o, char **argv, char *funcname UNUSED)
 {
   int result = ! strcmp (argv[0], argv[1]);
   o = variable_buffer_output (o,  result ? "1" : "", result);
@@ -1926,7 +1923,7 @@ func_eq (char *o, char **argv, char *funcname)
   string-boolean not operator.
  */
 static char *
-func_not (char *o, char **argv, char *funcname)
+func_not (char *o, char **argv, char *funcname UNUSED)
 {
   const char *s = argv[0];
   int result = 0;
@@ -1947,8 +1944,8 @@ func_not (char *o, char **argv, char *funcname)
 #define ROOT_LEN 1
 #endif
 
-/* Return the absolute name of file NAME which does not contain any `.',
-   `..' components nor any repeated path separators ('/').   */
+/* Return the absolute name of file NAME which does not contain any '.',
+   '..' components nor any repeated path separators ('/').   */
 
 static char *
 abspath (const char *name, char *apath)
@@ -2069,9 +2066,7 @@ func_realpath (char *o, char **argv, const char *funcname UNUSED)
   const char *path = 0;
   int doneany = 0;
   unsigned int len = 0;
-#ifndef HAVE_REALPATH
   struct stat st;
-#endif
   PATH_VAR (in);
   PATH_VAR (out);
 
@@ -2086,9 +2081,9 @@ func_realpath (char *o, char **argv, const char *funcname UNUSED)
 #ifdef HAVE_REALPATH
               realpath (in, out)
 #else
-              abspath (in, out) && stat (out, &st) == 0
+              abspath (in, out)
 #endif
-             )
+              && stat (out, &st) == 0)
             {
               o = variable_buffer_output (o, out, strlen (out));
               o = variable_buffer_output (o, " ", 1);
@@ -2248,7 +2243,7 @@ expand_builtin_function (char *o, int argc, char **argv,
 {
   if (argc < (int)entry_p->minimum_args)
     fatal (*expanding_var,
-           _("insufficient number of arguments (%d) to function `%s'"),
+           _("insufficient number of arguments (%d) to function '%s'"),
            argc, entry_p->name);
 
   /* I suppose technically some function could do something with no
@@ -2260,7 +2255,7 @@ expand_builtin_function (char *o, int argc, char **argv,
 
   if (!entry_p->func_ptr)
     fatal (*expanding_var,
-           _("unimplemented on this platform: function `%s'"), entry_p->name);
+           _("unimplemented on this platform: function '%s'"), entry_p->name);
 
   return entry_p->func_ptr (o, argv, entry_p->name);
 }
@@ -2310,7 +2305,7 @@ handle_function (char **op, const char **stringp)
 
   if (count >= 0)
     fatal (*expanding_var,
-	   _("unterminated call to function `%s': missing `%c'"),
+	   _("unterminated call to function '%s': missing '%c'"),
 	   entry_p->name, closeparen);
 
   *stringp = end;
@@ -2377,7 +2372,7 @@ handle_function (char **op, const char **stringp)
   if (entry_p->expand_args)
     for (argvp=argv; *argvp != 0; ++argvp)
       free (*argvp);
-  if (abeg)
+  else if (abeg)
     free (abeg);
 
   return 1;
