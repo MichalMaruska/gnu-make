@@ -1,3 +1,29 @@
+make-color (3.82.90-maruska) release; urgency=low
+
+  [ Michal Maruska ]
+  * debian: diverge the control file.
+  * Alternate debian/rules -- use CDBS.
+
+  [ Sebastian Pipping ]
+  * Apply patch v3
+  * Resolve OF_FLUSH and flush unconditionally
+  * Resolve flag OF_APPEND_NEWLINE, detect trailing newline
+  * Merge two enum parameters into a new one
+  * Rename parameter --color[=(yes|no)] to --format=(plain|color|colour)
+
+  [ Michal Maruska ]
+  * include 2 texi files ... debian?
+  * disable PO
+
+  [ Sebastian Pipping ]
+  * Move output.(c|h) code to output_ascii.(c|h), make output.(c|h) a null layer
+  * Reduce to single translated call to fprintf, extract functions (start|stop)_color
+  * Remove dead function outputf_ascii()
+
+  [ Michal Maruska ]
+
+ -- Michal Maruska <mmaruska@gmail.com>  Sun, 25 Nov 2012 16:16:33 +0100
+
 make-dfsg (3.81-8.1ubuntu1) oneiric; urgency=low
 
   * Fix bug #20033: parallel (-j2) make with $(eval) construct segfaults.
