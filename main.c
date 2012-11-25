@@ -23,6 +23,8 @@ this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "rule.h"
 #include "debug.h"
 #include "getopt.h"
+#include "output.h"
+#include "output_ascii.h"
 
 #include <assert.h>
 #ifdef _AMIGA
@@ -266,6 +268,9 @@ static struct stringlist *new_files = 0;
 /* List of strings to be eval'd.  */
 static struct stringlist *eval_strings = 0;
 
+/* List of strings passed as --format=<string>.  */
+static struct stringlist *format_strings = 0;
+
 /* If nonzero, we should just print usage and exit.  */
 
 static int print_usage_flag = 0;
@@ -320,6 +325,9 @@ static const char *const usage[] =
     N_("\
   -f FILE, --file=FILE, --makefile=FILE\n\
                               Read FILE as a makefile.\n"),
+    N_("\
+  --format=(plain|color|colour)]\n\
+                              Enable/disable colorization of output.\n"),
     N_("\
   -h, --help                  Print this message and exit.\n"),
     N_("\
@@ -425,6 +433,7 @@ static const struct command_switch switches[] =
     { CHAR_MAX+5, flag, &warn_undefined_variables_flag, 1, 1, 0, 0, 0,
       "warn-undefined-variables" },
     { CHAR_MAX+6, string, &eval_strings, 1, 0, 0, 0, 0, "eval" },
+    { CHAR_MAX+7, string, &format_strings, 1, 1, 0, 0, 0, "format" },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0 }
   };
 
@@ -1663,6 +1672,29 @@ main (int argc, char **argv, char **envp)
       p[-1] = '\0';
 
       define_variable_cname ("-*-eval-flags-*-", value, o_automatic, 0);
+    }
+
+  if (format_strings)
+    {
+      /* Be strict: Check all occurances for invalid values */
+      unsigned int i;
+      const char * last_string = format_strings->list[format_strings->idx - 1];
+      for (i = 0; i < format_strings->idx; ++i)
+        {
+          const char * request = format_strings->list[i];
+          if (streq("plain", request) || streq("color", request) || streq("colour", request))
+            {
+              continue;
+            }
+          fatal (NILF, _("parameter error: format '%s' not supported. "
+                "Valid formats are 'plain' and 'color'/'colour'"), request);
+        }
+
+      /* Enable/disable color based on the last request */
+      color_flag = streq("color", last_string) || streq("colour", last_string);
+      DB(DB_VERBOSE, ("Colorization %s\n", color_flag ? "enabled" : "disabled"));
+
+      apply_make_colors ();
     }
 
   /* Read all the makefiles.  */
@@ -3307,33 +3339,35 @@ log_working_directory (int entering)
 
   /* Use entire sentences to give the translators a fighting chance.  */
 
+  /* TODO can be strongly simplified using flag OF_PREPEND_PREFIX
+   * but that needs touching translation strings */
   if (makelevel == 0)
     if (starting_directory == 0)
       if (entering)
-        printf (_("%s: Entering an unknown directory\n"), program);
+        outputf (OT_DIR_ENTER, 0, _("%s: Entering an unknown directory\n"), program);
       else
-        printf (_("%s: Leaving an unknown directory\n"), program);
+        outputf (OT_DIR_LEAVE, 0, _("%s: Leaving an unknown directory\n"), program);
     else
       if (entering)
-        printf (_("%s: Entering directory '%s'\n"),
+        outputf (OT_DIR_ENTER, 0, _("%s: Entering directory '%s'\n"),
                 program, starting_directory);
       else
-        printf (_("%s: Leaving directory '%s'\n"),
+        outputf (OT_DIR_LEAVE, 0, _("%s: Leaving directory '%s'\n"),
                 program, starting_directory);
   else
     if (starting_directory == 0)
       if (entering)
-        printf (_("%s[%u]: Entering an unknown directory\n"),
+        outputf (OT_DIR_ENTER, 0, _("%s[%u]: Entering an unknown directory\n"),
                 program, makelevel);
       else
-        printf (_("%s[%u]: Leaving an unknown directory\n"),
+        outputf (OT_DIR_LEAVE, 0, _("%s[%u]: Leaving an unknown directory\n"),
                 program, makelevel);
     else
       if (entering)
-        printf (_("%s[%u]: Entering directory '%s'\n"),
+        outputf (OT_DIR_ENTER, 0, _("%s[%u]: Entering directory '%s'\n"),
                 program, makelevel, starting_directory);
       else
-        printf (_("%s[%u]: Leaving directory '%s'\n"),
+        outputf (OT_DIR_LEAVE, 0, _("%s[%u]: Leaving directory '%s'\n"),
                 program, makelevel, starting_directory);
 
   /* Flush stdout to be sure this comes before any stderr output.  */

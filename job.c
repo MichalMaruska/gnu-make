@@ -24,6 +24,7 @@ this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "commands.h"
 #include "variable.h"
 #include "debug.h"
+#include "output.h"
 
 #include <string.h>
 
@@ -1202,9 +1203,9 @@ start_job_command (struct child *child)
      can log the working directory before the command's own error messages
      appear.  */
 
-  message (0, (just_print_flag || trace_flag
-               || (!(flags & COMMANDS_SILENT) && !silent_flag))
-	   ? "%s" : (char *) 0, p);
+  if (just_print_flag || trace_flag
+            || (!(flags & COMMANDS_SILENT) && !silent_flag))
+    outputf (OT_EXECUTION, 0, "%s", p);
 
   /* Tell update_goal_chain that a command has been started on behalf of
      this target.  It is important that this happens here and not in
