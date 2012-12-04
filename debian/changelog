@@ -1,3 +1,10 @@
+make-color (3.82.90-maruska1) precise; urgency=low
+
+  * re-enable languages (imported *.po files)
+  * makefiles for  PO files.
+
+ -- Michal Maruska <mmaruska@gmail.com>  Tue, 04 Dec 2012 02:14:27 +0100
+
 make-color (3.82.90-maruska) release; urgency=low
 
   [ Michal Maruska ]
