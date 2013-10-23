@@ -46,4 +46,11 @@ config.h.W32
 configh.dos
 make-[0-9]*/
 make-[0-9]*.tar.*
+*Repository
+*/CVS/Repository
+Entries.Log
+Entries
+Root
+**/CVS/Entries.Log
+**/CVS/Entries
 checkcfg.*.log
