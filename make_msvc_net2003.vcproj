@@ -184,6 +184,12 @@
 				RelativePath=".\misc.c">
 			</File>
 			<File
+				RelativePath=".\output.c">
+			</File>
+			<File
+				RelativePath=".\output_ascii.c">
+			</File>
+			<File
 				RelativePath=".\read.c">
 			</File>
 			<File
@@ -291,6 +297,12 @@
 			</File>
 			<File
 				RelativePath=".\makeint.h">
+			</File>
+			<File
+				RelativePath=".\output.h">
+			</File>
+			<File
+				RelativePath=".\output_ascii.h">
 			</File>
 			<File
 				RelativePath=".\rule.h">
