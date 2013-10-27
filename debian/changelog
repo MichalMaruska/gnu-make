@@ -1,3 +1,9 @@
+make-color (4.0) precise; urgency=low
+
+  * 1st
+
+ -- Michal Maruska <mmaruska@gmail.com>  Fri, 18 Oct 2013 23:47:28 +0200
+
 make-dfsg (3.81-8.1ubuntu1) oneiric; urgency=low
 
   * Fix bug #20033: parallel (-j2) make with $(eval) construct segfaults.
