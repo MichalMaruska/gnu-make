@@ -1,3 +1,12 @@
+make-color (4.0-1) precise; urgency=low
+
+  * ignore CVS files
+  * protect output.h from multiple include
+  * Conditionally wrap each message into color-setting control/escape sequence.
+  * Document in manpage the coloring feature
+
+ -- Michal Maruska <mmaruska@gmail.com>  Wed, 30 Oct 2013 23:23:33 +0100
+
 make-color (4.0) precise; urgency=low
 
   * 1st
