@@ -425,8 +425,12 @@ extern struct rlimit stack_limit;
 #define STRING_SIZE_TUPLE(_s) (_s), CSTRLEN(_s)
 
 
+extern int color_flag;
+void apply_make_colors (void);
 const char *concat (unsigned int, ...);
 void message (int prefix, const char *fmt, ...)
+              __attribute__ ((__format__ (__printf__, 2, 3)));
+void message_cmd (int prefix, const char *fmt, ...)
               __attribute__ ((__format__ (__printf__, 2, 3)));
 void error (const gmk_floc *flocp, const char *fmt, ...)
             __attribute__ ((__format__ (__printf__, 2, 3)));
