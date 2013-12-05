@@ -56,6 +56,7 @@ unsigned int stdio_traced = 0;
 #define COLOR_BOLD_RED      "1;31"
 #define COLOR_CYAN          "0;36"
 #define COLOR_GREEN         "0;32"
+#define COLOR_BLUE         "0;34"
 #define COLOR_BOLD_MAGENTA  "1;35"
 
 #define ERASE_IN_LINE   "\033[K"
@@ -69,7 +70,7 @@ int color_flag;
 const char * color_dir_enter = COLOR_CYAN;
 const char * color_dir_leave = COLOR_CYAN;
 const char * color_misc_message = COLOR_GREEN;
-const char * color_misc_error = COLOR_BOLD_RED;
+const char * color_misc_error = COLOR_BLUE;
 const char * color_misc_fatal = COLOR_BOLD_RED;
 const char * color_execution = COLOR_BOLD_MAGENTA;
 
@@ -937,7 +938,7 @@ print_in_color (const gmk_floc *flocp, const char* color, const char *fmt, ...)
   assert (fmt != NULL);
 
   fmtbuf.len = 0;
-  start_color (color_misc_error);
+  start_color (color);
   if (flocp && flocp->filenm)
     fmtconcat ("%s:%lu: ", flocp->filenm, flocp->lineno);
   else if (makelevel == 0)
