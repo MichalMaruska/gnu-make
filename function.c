@@ -1089,8 +1089,8 @@ func_error (char *o, char **argv, const char *funcname)
       break;
 
     case 'i':
-      outputs (0, msg);
-      outputs (0, "\n");
+      /* make this colorful too. */
+      print_in_color(0, color_misc_message, "%s", msg);
       break;
 
     default:
