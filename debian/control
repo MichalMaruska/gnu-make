@@ -2,7 +2,7 @@ Source: make-color
 Section: devel
 Priority: standard
 Maintainer: Michal Maruska <mmaruska@gmail.com>
-Build-Depends: autoconf, automake | automaken, autopoint, file, debhelper (>= 7)
+Build-Depends: autoconf, automake | automaken, autopoint, file, debhelper (>= 7), texinfo
 Standards-Version: 3.8.3.0
 
 Package: make
