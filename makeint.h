@@ -425,13 +425,31 @@ extern struct rlimit stack_limit;
 #define STRING_SIZE_TUPLE(_s) (_s), CSTRLEN(_s)
 
 
+extern int color_flag;
+void apply_make_colors (void);
 const char *concat (unsigned int, ...);
 void message (int prefix, const char *fmt, ...)
               __attribute__ ((__format__ (__printf__, 2, 3)));
-void error (const gmk_floc *flocp, const char *fmt, ...)
-            __attribute__ ((__format__ (__printf__, 2, 3)));
-void fatal (const gmk_floc *flocp, const char *fmt, ...)
-                   __attribute__ ((noreturn, __format__ (__printf__, 2, 3)));
+void message_cmd (int prefix, const char *fmt, ...)
+              __attribute__ ((__format__ (__printf__, 2, 3)));
+
+void print_in_color (const gmk_floc *flocp, const char* color, const char *fmt, ...)
+            __attribute__ ((__format__ (__printf__, 3, 4)));
+
+const char * color_dir_enter;
+const char * color_dir_leave;
+const char * color_misc_message;
+const char * color_misc_error;
+const char * color_misc_fatal;
+const char * color_execution;
+
+/* Print an error message.  */
+#define error(flocp, fmt, ...) print_in_color(flocp, color_misc_error, fmt, ##__VA_ARGS__)
+
+/* Print an error message and exit.  */
+#define fatal(flocp, fmt, ...)  do {                            \
+                print_in_color(flocp, color_misc_fatal, fmt, ##__VA_ARGS__); \
+                die (2);} while (0)
 
 void die (int) __attribute__ ((noreturn));
 void pfatal_with_name (const char *) __attribute__ ((noreturn));
