@@ -432,7 +432,6 @@ void message (int prefix, const char *fmt, ...)
               __attribute__ ((__format__ (__printf__, 2, 3)));
 void message_cmd (int prefix, const char *fmt, ...)
               __attribute__ ((__format__ (__printf__, 2, 3)));
-#if 1
 
 void print_in_color (const gmk_floc *flocp, const char* color, const char *fmt, ...)
             __attribute__ ((__format__ (__printf__, 3, 4)));
