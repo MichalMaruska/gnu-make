@@ -160,7 +160,7 @@ void apply_make_colors()
     {
       const char * const assign_pos = strchr(key_pos, '=');
       if (! assign_pos) {
-        fatal (0, "Assignment ('=') missing in MAKE_COLORS: \"%s\"", key_pos);
+              OS (fatal, NILF, "Assignment ('=') missing in MAKE_COLORS: \"%s\"", key_pos);
       }
 
       colon_pos = strchr(assign_pos, ':');
@@ -178,12 +178,12 @@ void apply_make_colors()
             {
               char * const s = RANGE_DUP(name);
               /* so this works even in out-of-memory, when s is NULL: */
-              fatal (0, "Invalid name in MAKE_COLORS: \"%s\"", PREVENT_NULL(s));
+              OS (fatal, NILF, "Invalid name in MAKE_COLORS: \"%s\"", PREVENT_NULL(s));
               free(s);
             }
          }
       else
-        fatal (0, "Empty name in MAKE_COLORS: \"%s\"", key_pos);
+        OS (fatal, NILF, "Empty name in MAKE_COLORS: \"%s\"", key_pos);
 
       /* Which kind of statement do we have? */
       if (valid_names[name_index].flag_destination)
@@ -193,7 +193,7 @@ void apply_make_colors()
           if (RANGE_LEN(value) <= 0)
             {
               const char * const switch_name = valid_names[name_index].key;
-              fatal (0, "Empty value for switch \"%s\" in MAKE_COLORS", switch_name);
+              OS (fatal, NILF, "Empty value for switch \"%s\" in MAKE_COLORS", switch_name);
             }
           else if (RANGE_EQUALS(value, "yes"))
             {
@@ -210,7 +210,7 @@ void apply_make_colors()
               /* Invalid (i.e. neither "yes" nor "no") */
               const char * const switch_name = valid_names[name_index].key;
               char * const guilty_part = RANGE_DUP(value);
-              fatal (0, "Invalid value for switch \"%s\" in MAKE_COLORS: \"%s\"", switch_name, PREVENT_NULL(guilty_part));
+              OSS (fatal, NILF, "Invalid value for switch \"%s\" in MAKE_COLORS: \"%s\"", switch_name, PREVENT_NULL(guilty_part));
               free(guilty_part);
             }
         }
@@ -230,7 +230,7 @@ void apply_make_colors()
             {
               const char_range_t guilty_range = { key_pos, colon_pos };
               char * const guilty_part = RANGE_DUP(guilty_range);
-              fatal (0, "Invalid color mapping in MAKE_COLORS: \"%s\"", PREVENT_NULL(guilty_part));
+              OS(fatal, NILF, "Invalid color mapping in MAKE_COLORS: \"%s\"", PREVENT_NULL(guilty_part));
               free(guilty_part);
             }
         }
