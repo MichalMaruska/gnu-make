@@ -830,7 +830,14 @@ message (int prefix, size_t len, const char *fmt, ...)
   char *p;
 
   len += strlen (fmt) + strlen (program) + INTSTR_LENGTH + 4 + 1 + 1;
+  if (color_flag)
+    len += COLOR_MAX_SPACE;
   p = get_buffer (len);
+
+  if (color_flag) {
+    /* color_misc_message color_execution */
+    p += start_color(p,color_misc_message);
+  }
 
   if (prefix)
     {
@@ -842,8 +849,11 @@ message (int prefix, size_t len, const char *fmt, ...)
     }
 
   va_start (args, fmt);
-  vsprintf (p, fmt, args);
+  p += vsprintf (p, fmt, args);
   va_end (args);
+
+  if (color_flag)
+    p += stop_color (p);
 
   strcat (p, "\n");
 
@@ -862,8 +872,14 @@ error (const gmk_floc *flocp, size_t len, const char *fmt, ...)
   len += (strlen (fmt) + strlen (program)
           + (flocp && flocp->filenm ? strlen (flocp->filenm) : 0)
           + INTSTR_LENGTH + 4 + 1 + 1);
+  if (color_flag)
+    len += COLOR_MAX_SPACE;
+
   p = get_buffer (len);
 
+  if (color_flag) {
+    p += start_color(p,color_misc_error);
+  }
   if (flocp && flocp->filenm)
     sprintf (p, "%s:%lu: ", flocp->filenm, flocp->lineno);
   else if (makelevel == 0)
@@ -873,8 +889,11 @@ error (const gmk_floc *flocp, size_t len, const char *fmt, ...)
   p += strlen (p);
 
   va_start (args, fmt);
-  vsprintf (p, fmt, args);
+  p += vsprintf (p, fmt, args);
   va_end (args);
+
+  if (color_flag)
+    p += stop_color (p);
 
   strcat (p, "\n");
 
@@ -894,7 +913,16 @@ fatal (const gmk_floc *flocp, size_t len, const char *fmt, ...)
   len += (strlen (fmt) + strlen (program)
           + (flocp && flocp->filenm ? strlen (flocp->filenm) : 0)
           + INTSTR_LENGTH + 8 + strlen (stop) + 1);
+
+  if (color_flag)
+    len += COLOR_MAX_SPACE;
+
   p = get_buffer (len);
+
+  if (color_flag) {
+    p += start_color(p,color_misc_fatal);
+  }
+
 
   if (flocp && flocp->filenm)
     sprintf (p, "%s:%lu: *** ", flocp->filenm, flocp->lineno);
@@ -905,10 +933,14 @@ fatal (const gmk_floc *flocp, size_t len, const char *fmt, ...)
   p += strlen (p);
 
   va_start (args, fmt);
-  vsprintf (p, fmt, args);
+  p += vsprintf (p, fmt, args);
   va_end (args);
 
   strcat (p, stop);
+  p += strlen (stop);
+
+  if (color_flag)
+    p += stop_color (p);
 
   assert (fmtbuf.buffer[len] == '\0');
   outputs (1, fmtbuf.buffer);
