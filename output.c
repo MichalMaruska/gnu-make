@@ -269,6 +269,19 @@ _outputs (struct output *out, int is_err, const char *msg)
     }
 }
 
+/* max length of color-set/reset escape sequence: set + reset  sizeof(ERASE_IN_LINE)*/
+#define COLOR_MAX_SPACE ((2 + 3 + 1 + 3 ) + ( 3 + 3))
+
+static int start_color(char* buffer, const char * color)
+{
+  return sprintf(buffer, "\033[%sm%s", color, erase_in_line_flag ? ERASE_IN_LINE : "");
+}
+
+static int stop_color(char* buffer)
+{
+  return sprintf(buffer, "\033[m%s", erase_in_line_flag ? ERASE_IN_LINE : "");
+}
+
 /* Write a message indicating that we've just entered or
    left (according to ENTERING) the current directory.  */
 
