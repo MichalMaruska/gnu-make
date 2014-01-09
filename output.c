@@ -296,6 +296,7 @@ log_working_directory (int entering)
 
   /* Get enough space for the longest possible output.  */
   need = strlen (program) + INTSTR_LENGTH + 2 + 1;
+  need += COLOR_MAX_SPACE;
   if (starting_directory)
     need += strlen (starting_directory);
 
@@ -331,7 +332,14 @@ log_working_directory (int entering)
       len = need;
     }
 
-  p = buf;
+  /* mmc: now start typing into the buffer: */
+  if (color_flag)
+    {
+    /* fixme:  negative value on error! */
+      p = buf + start_color (buf, entering?color_dir_enter:color_dir_leave);
+    }
+  else
+    p = buf;
   if (print_data_base_flag)
     {
       *(p++) = '#';
@@ -348,6 +356,12 @@ log_working_directory (int entering)
   else
     sprintf (p, fmt, program, makelevel, starting_directory);
 
+  if (color_flag)
+    /* we overwrite the newline! */
+    /* this is optional, we yes, we have to overwrite: */
+    stop_color (buf + strlen(buf) -1);
+
+  /* I'd say stderr! */
   _outputs (NULL, 0, buf);
 
   return 1;
