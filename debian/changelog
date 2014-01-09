@@ -1,3 +1,19 @@
+make-color (4.0.90maruska) release; urgency=low
+
+  * ignore CVS files
+  * protect output.h from multiple include
+  * [FIX] Correct debian dependencies
+  * New variables, which are set up on start, and contain EscSeq for colors.
+  * New cmd line long option to invoke the color parsing.
+  * New static functions start/stop_color string operation & return the lenght too
+  * When leaving/entering directory, output possibly in color.
+  * re-format
+  * error/fatal: allocate more & prefix/suffix with color strings
+  * Document in manpage the coloring feature
+  * bump the version to .90color
+
+ -- Michal Maruska <mmaruska@gmail.com>  Thu, 09 Jan 2014 02:40:29 +0100
+
 make-color (4.0) precise; urgency=low
 
   * 1st
