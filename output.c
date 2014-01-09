@@ -347,10 +347,12 @@ log_working_directory (int entering)
     }
 
   if (makelevel == 0)
+    {
     if (starting_directory == 0)
-      sprintf (p, fmt , program);
+      sprintf (p, fmt, program);
     else
       sprintf (p, fmt, program, starting_directory);
+    }
   else if (starting_directory == 0)
     sprintf (p, fmt, program, makelevel);
   else
