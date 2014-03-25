@@ -363,6 +363,8 @@ log_working_directory (int entering)
     /* this is optional, we yes, we have to overwrite: */
     stop_color (buf + strlen(buf) -1);
 
+  strcat (buf, "\n");
+
   /* I'd say stderr! */
   _outputs (NULL, 0, buf);
 
