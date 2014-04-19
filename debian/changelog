@@ -1,3 +1,10 @@
+make-color (4.0.90maruska1) precise; urgency=low
+
+  * Drop the generated file
+  * fix newline after directory-change message.
+
+ -- Michal Maruska <mmaruska@gmail.com>  Sat, 19 Apr 2014 19:29:31 +0200
+
 make-color (4.0.90maruska) release; urgency=low
 
   * ignore CVS files
