@@ -1,3 +1,18 @@
+make-color (4.2.1maruska) unstable; urgency=medium
+
+  * ignore CVS files
+  * protect output.h from multiple include
+  * fix the perl test invoker.
+  * At startup process EnvVar MAKE_COLORS and set initial values of new variables.
+  * New cmd line long option to invoke the color parsing.
+  * New functions to start/stop_color in a buffer. return the length too COLOR_MAX_SPACE ...
+  * allocate more space & if color_flag  bracket the buffer with start/stop When leaving/entering directory, output possibly in color.
+  * re-format the upstream code
+  * error/fatal: allocate more & prefix/suffix with color strings
+  * Document in manpage the coloring feature
+
+ -- Michal Maruska <mmaruska@gmail.com>  Wed, 12 Oct 2016 22:40:30 +0200
+
 make-color (4.0) precise; urgency=low
 
   * 1st
