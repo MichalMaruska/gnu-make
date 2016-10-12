@@ -1,3 +1,5 @@
+#ifndef __OUTPUT_H__
+#define __OUTPUT_H__
 /* Output to stdout / stderr for GNU make
 Copyright (C) 2013-2016 Free Software Foundation, Inc.
 This file is part of GNU Make.
@@ -49,3 +51,5 @@ int output_tmpfd (void);
 /* Dump any child output content to stdout, and reset it.  */
 void output_dump (struct output *out);
 #endif
+
+#endif /* __OUTPUT_H__ */

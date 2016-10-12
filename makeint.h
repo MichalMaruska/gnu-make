@@ -477,6 +477,9 @@ typedef struct
     unsigned long offset;
   } floc;
 
+extern int color_flag;
+void apply_make_colors (void);
+
 const char *concat (unsigned int, ...);
 void message (int prefix, size_t length, const char *fmt, ...)
               __attribute__ ((__format__ (__printf__, 3, 4)));
@@ -500,6 +503,13 @@ void fatal (const floc *flocp, size_t length, const char *fmt, ...)
                                  (_f), (_n), (_s))
 
 #define OUT_OF_MEM() O (fatal, NILF, _("virtual memory exhausted"))
+
+const char * color_dir_enter;
+const char * color_dir_leave;
+const char * color_misc_message;
+const char * color_misc_error;
+const char * color_misc_fatal;
+const char * color_execution;
 
 void die (int) __attribute__ ((noreturn));
 void pfatal_with_name (const char *) __attribute__ ((noreturn));

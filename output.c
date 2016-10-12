@@ -52,6 +52,195 @@ unsigned int stdio_traced = 0;
 # define STREAM_OK(_s) 1
 #endif
 
+#define COLOR_BOLD_RED      "1;31"
+#define COLOR_CYAN          "0;36"
+#define COLOR_GREEN         "0;32"
+#define COLOR_BOLD_BLUE      "1;34"
+#define COLOR_BOLD_MAGENTA  "1;35"
+
+#define ERASE_IN_LINE   "\033[K"
+
+/* Nonzero means do output "\033[K" after color open and close.  */
+int erase_in_line_flag = 1;
+/* Nonzero means do colorize output.  */
+int color_flag;
+
+/* These colors are uses for output.  Can be overridden from "MAKE_COLORS". */
+const char * color_dir_enter = COLOR_CYAN;
+const char * color_dir_leave = COLOR_CYAN;
+const char * color_misc_message = COLOR_GREEN;
+const char * color_misc_error = COLOR_BOLD_BLUE;
+const char * color_misc_fatal = COLOR_BOLD_RED;
+const char * color_execution = COLOR_BOLD_MAGENTA;
+
+#define PREVENT_NULL(s)  ((s) ? (s) : "<error>")
+
+
+typedef struct _char_range_t {
+	const char * first;
+	const char * after_last;
+} char_range_t;
+
+#define RANGE_LEN(range)  (range.after_last - range.first)
+#define RANGE_DUP(range)  xstrndup(range.first, RANGE_LEN(range))
+
+//  xxxxx yyyyyyyyyyyyy
+//           ^first  |len
+//  so xxxx must be equal to the string first ...len ?
+
+#define RANGE_EQUALS(range, text)  \
+    ( ! strncmp(text, range.first, RANGE_LEN(range)) \
+        && ((long)strlen(text) == RANGE_LEN(range)))
+#define RANGE_SET(range, _first, _after_last)  \
+    do \
+      { \
+        range.first = _first; \
+        range.after_last = _after_last; \
+      } \
+    while (0)
+#define EMPTY_RANGE  { 0, 0 }
+
+
+typedef struct _mapping_def_t {
+	const char * key;
+	int * flag_destination;
+	const char ** color_destination;
+} mapping_def_t;
+
+/* |--| |--| ....
+   .member is *char
+   */
+/* Find the index of a certain string in an array of mapping_def_t instances
+   The string is given by delimiting pointers. */
+#define FIND(haystack_array, member, needle_range, match_index) \
+    do \
+      { \
+        size_t u = 0; \
+        match_index = -1; \
+        for (; u < sizeof(haystack_array) / sizeof(haystack_array[0]); u++) \
+          { \
+            const char * const key = haystack_array[u].member; \
+            if (RANGE_EQUALS(needle_range, key)) \
+              { \
+                match_index = u; \
+                break; \
+              } \
+          } \
+      } \
+    while(0)
+
+/*  Called at init.
+ *  If Env. var  MAKE_COLORS is set, redefines these
+ *  variables color_misc_error ....
+ */
+void apply_make_colors()
+{
+  const mapping_def_t valid_names[] = {
+    {"enter", 0, &color_dir_enter},
+    {"leave", 0, &color_dir_leave},
+    {"message", 0, &color_misc_message},
+    {"error", 0, &color_misc_error},
+    {"fatal", 0, &color_misc_fatal},
+    {"run", 0, &color_execution},
+    {"erase", &erase_in_line_flag, 0},
+  };
+
+  int name_index = -1;
+  const char * const MAKE_COLORS = getenv("MAKE_COLORS");
+  const char * key_pos = MAKE_COLORS;
+  const char * colon_pos = NULL;
+
+  char_range_t name = EMPTY_RANGE; /* delimits the keyword in the EnvVar value */
+  char_range_t value = EMPTY_RANGE;
+  if (! MAKE_COLORS)
+    return;
+
+  /* Example: MAKE_COLORS='erase=no:enter=0;42:leave=0;41:message=0' */
+  for (; key_pos != 0; key_pos = colon_pos + 1)
+    {
+      const char * const assign_pos = strchr(key_pos, '=');
+      if (! assign_pos) {
+              OS (fatal, NILF, "Assignment ('=') missing in MAKE_COLORS: \"%s\"", key_pos);
+      }
+
+      colon_pos = strchr(assign_pos, ':');
+      if (! colon_pos)
+        colon_pos = assign_pos + strlen(assign_pos);
+
+      /* delimit the keyword & value */
+      RANGE_SET(name, key_pos, assign_pos);
+      RANGE_SET(value, assign_pos + 1, colon_pos);
+
+      if (RANGE_LEN(name) > 0)
+        {
+          FIND(valid_names, key, name, name_index);
+          if (name_index == -1)
+            {
+              char * const s = RANGE_DUP(name);
+              /* so this works even in out-of-memory, when s is NULL: */
+              OS (fatal, NILF, "Invalid name in MAKE_COLORS: \"%s\"", PREVENT_NULL(s));
+              free(s);
+            }
+         }
+      else
+        OS (fatal, NILF, "Empty name in MAKE_COLORS: \"%s\"", key_pos);
+
+      /* Which kind of statement do we have? */
+      if (valid_names[name_index].flag_destination)
+        {
+          /* Boolean statement */
+          int * const destination = valid_names[name_index].flag_destination;
+          if (RANGE_LEN(value) <= 0)
+            {
+              const char * const switch_name = valid_names[name_index].key;
+              OS (fatal, NILF, "Empty value for switch \"%s\" in MAKE_COLORS", switch_name);
+            }
+          else if (RANGE_EQUALS(value, "yes"))
+            {
+              // DB(DB_VERBOSE, ("Erase in line enabled\n"));
+              *destination = 1;
+            }
+          else if (RANGE_EQUALS(value, "no"))
+            {
+              // DB(DB_VERBOSE, ("Erase in line disabled\n"));
+              *destination = 0;
+            }
+          else
+            {
+              /* Invalid (i.e. neither "yes" nor "no") */
+              const char * const switch_name = valid_names[name_index].key;
+              char * const guilty_part = RANGE_DUP(value);
+              OSS (fatal, NILF, "Invalid value for switch \"%s\" in MAKE_COLORS: \"%s\"", switch_name, PREVENT_NULL(guilty_part));
+              free(guilty_part);
+            }
+        }
+      else
+        {
+          /* Colorization statement */
+          const int value_is_valid = RANGE_LEN(value) > 0;
+          if (value_is_valid)
+            {
+              // const char * const class_name = valid_names[name_index].key;
+              const char * const color = PREVENT_NULL(RANGE_DUP(value));
+              const char ** const color_destination = valid_names[name_index].color_destination;
+              // DB(DB_VERBOSE, ("Applying color \"%s\" to class \"%s\"\n", color, class_name));
+              *color_destination = color;
+            }
+          else
+            {
+              const char_range_t guilty_range = { key_pos, colon_pos };
+              char * const guilty_part = RANGE_DUP(guilty_range);
+              OS(fatal, NILF, "Invalid color mapping in MAKE_COLORS: \"%s\"", PREVENT_NULL(guilty_part));
+              free(guilty_part);
+            }
+        }
+
+      /* Done? */
+      if (colon_pos[0] == '\0')
+        break;
+  }
+}
+
 /* Write a string to the current STDOUT or STDERR.  */
 static void
 _outputs (struct output *out, int is_err, const char *msg)
@@ -80,6 +269,19 @@ _outputs (struct output *out, int is_err, const char *msg)
     }
 }
 
+/* max length of color-set/reset escape sequence: set + reset  sizeof(ERASE_IN_LINE)*/
+#define COLOR_MAX_SPACE ((2 + 3 + 1 + 3 ) + ( 3 + 3))
+
+static int start_color(char* buffer, const char * color)
+{
+  return sprintf(buffer, "\033[%sm%s", color, erase_in_line_flag ? ERASE_IN_LINE : "");
+}
+
+static int stop_color(char* buffer)
+{
+  return sprintf(buffer, "\033[m%s", erase_in_line_flag ? ERASE_IN_LINE : "");
+}
+
 /* Write a message indicating that we've just entered or
    left (according to ENTERING) the current directory.  */
 
@@ -94,6 +296,7 @@ log_working_directory (int entering)
 
   /* Get enough space for the longest possible output.  */
   need = strlen (program) + INTSTR_LENGTH + 2 + 1;
+  need += COLOR_MAX_SPACE;
   if (starting_directory)
     need += strlen (starting_directory);
 
@@ -129,7 +332,14 @@ log_working_directory (int entering)
       len = need;
     }
 
-  p = buf;
+  /* mmc: now start typing into the buffer: */
+  if (color_flag)
+    {
+    /* fixme:  negative value on error! */
+      p = buf + start_color (buf, entering?color_dir_enter:color_dir_leave);
+    }
+  else
+    p = buf;
   if (print_data_base_flag)
     {
       *(p++) = '#';
@@ -137,15 +347,25 @@ log_working_directory (int entering)
     }
 
   if (makelevel == 0)
+    {
     if (starting_directory == 0)
-      sprintf (p, fmt , program);
+      sprintf (p, fmt, program);
     else
       sprintf (p, fmt, program, starting_directory);
+    }
   else if (starting_directory == 0)
     sprintf (p, fmt, program, makelevel);
   else
     sprintf (p, fmt, program, makelevel, starting_directory);
 
+  if (color_flag) {
+    /* we overwrite the newline! */
+    /* this is optional, we yes, we have to overwrite: */
+    stop_color (buf + strlen(buf) -1);
+    strcat (buf, "\n");
+  }
+
+  /* I'd say stderr! */
   _outputs (NULL, 0, buf);
 
   return 1;
@@ -616,7 +836,14 @@ message (int prefix, size_t len, const char *fmt, ...)
   char *p;
 
   len += strlen (fmt) + strlen (program) + INTSTR_LENGTH + 4 + 1 + 1;
+  if (color_flag)
+    len += COLOR_MAX_SPACE;
   p = get_buffer (len);
+
+  if (color_flag) {
+    /* color_misc_message color_execution */
+    p += start_color(p,color_misc_message);
+  }
 
   if (prefix)
     {
@@ -628,8 +855,11 @@ message (int prefix, size_t len, const char *fmt, ...)
     }
 
   va_start (args, fmt);
-  vsprintf (p, fmt, args);
+  p += vsprintf (p, fmt, args);
   va_end (args);
+
+  if (color_flag)
+    p += stop_color (p);
 
   strcat (p, "\n");
 
@@ -648,8 +878,14 @@ error (const floc *flocp, size_t len, const char *fmt, ...)
   len += (strlen (fmt) + strlen (program)
           + (flocp && flocp->filenm ? strlen (flocp->filenm) : 0)
           + INTSTR_LENGTH + 4 + 1 + 1);
+  if (color_flag)
+    len += COLOR_MAX_SPACE;
+
   p = get_buffer (len);
 
+  if (color_flag) {
+    p += start_color(p,color_misc_error);
+  }
   if (flocp && flocp->filenm)
     sprintf (p, "%s:%lu: ", flocp->filenm, flocp->lineno + flocp->offset);
   else if (makelevel == 0)
@@ -659,8 +895,11 @@ error (const floc *flocp, size_t len, const char *fmt, ...)
   p += strlen (p);
 
   va_start (args, fmt);
-  vsprintf (p, fmt, args);
+  p += vsprintf (p, fmt, args);
   va_end (args);
+
+  if (color_flag)
+    p += stop_color (p);
 
   strcat (p, "\n");
 
@@ -680,7 +919,16 @@ fatal (const floc *flocp, size_t len, const char *fmt, ...)
   len += (strlen (fmt) + strlen (program)
           + (flocp && flocp->filenm ? strlen (flocp->filenm) : 0)
           + INTSTR_LENGTH + 8 + strlen (stop) + 1);
+
+  if (color_flag)
+    len += COLOR_MAX_SPACE;
+
   p = get_buffer (len);
+
+  if (color_flag) {
+    p += start_color(p,color_misc_fatal);
+  }
+
 
   if (flocp && flocp->filenm)
     sprintf (p, "%s:%lu: *** ", flocp->filenm, flocp->lineno + flocp->offset);
@@ -691,10 +939,14 @@ fatal (const floc *flocp, size_t len, const char *fmt, ...)
   p += strlen (p);
 
   va_start (args, fmt);
-  vsprintf (p, fmt, args);
+  p += vsprintf (p, fmt, args);
   va_end (args);
 
   strcat (p, stop);
+  p += strlen (stop);
+
+  if (color_flag)
+    p += stop_color (p);
 
   assert (fmtbuf.buffer[len-1] == '\0');
   outputs (1, fmtbuf.buffer);

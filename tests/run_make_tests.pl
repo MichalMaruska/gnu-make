@@ -1,6 +1,10 @@
 #!/usr/bin/env perl
 # -*-perl-*-
 
+# add ./ into @INC
+use FindBin;
+use lib $FindBin::Bin;
+
 # Test driver for the Make test suite
 
 # Usage:  run_make_tests  [testname]
