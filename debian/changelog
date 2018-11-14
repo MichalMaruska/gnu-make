@@ -1,3 +1,9 @@
+make-color (4.2.2maruska) unstable; urgency=medium
+
+  * support x32
+
+ -- Michal Maruska <mmaruska@gmail.com>  Wed, 14 Nov 2018 07:57:26 +0100
+
 make-color (4.2.1maruska) unstable; urgency=medium
 
   * ignore CVS files
