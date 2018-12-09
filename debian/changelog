@@ -1,3 +1,9 @@
+make-color (4.2.2maruska2) unstable; urgency=medium
+
+  * fix the __alloca mess for i386 too
+
+ -- Michal Maruska <mmaruska@gmail.com>  Sun, 09 Dec 2018 22:06:13 +0100
+
 make-color (4.2.2maruska) unstable; urgency=medium
 
   * support x32
